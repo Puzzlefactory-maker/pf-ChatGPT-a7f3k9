@@ -380,7 +380,7 @@ const EMBEDDED_DATA = {
    "modeA": "Chat",
    "modeB": "Work",
    "suggest": {
-    "show": true,
+    "show": false,
     "emoji": "📍",
     "text": "다산 근처 주말 아이디어"
    },
@@ -1318,7 +1318,7 @@ function guestMode(){
 let treePath = [];
 let adminListPicked = false;
 let editingNode = '';
-let foldState = { look:true, pad:true };
+let foldState = { pad:true };
 
 function curC1(){ return treePath[0] ? data.tree.find(c=>c.id===treePath[0]) : null; }
 function curC2(){ const c1 = curC1(); return (c1 && treePath[1]) ? (c1.children||[]).find(c=>c.id===treePath[1]) : null; }
@@ -1736,7 +1736,6 @@ function renderAdminHome(resetScroll){
   $('#adminTitle').textContent = '관리자';
   const L = curList();
   const body = $('#paneHome');
-  const sg = L.suggest || {};
   let html = `
     ${hasLocalEdits() ? `<div class="admin-section" style="background:#fff8d6;border:1px solid #f0dd8a">
       <h3 style="color:#7a5b00">이 기기에만 저장된 수정이 있습니다</h3>
@@ -1762,23 +1761,6 @@ function renderAdminHome(resetScroll){
         : `<div class="hint">대분류(지점) › 중분류(테마)로 정리합니다. <b>중분류 하나가 GPT 앱 한 벌</b>입니다.</div>`}
     </div>
 
-    ${adminListPicked ? `<div class="admin-section ${foldState.look?'folded':''}">
-      <h3 class="foldable" data-fold="look">첫 화면 꾸미기 <span class="fold-arrow">${foldState.look?'▶':'▼'}</span></h3>
-      <div class="fold-body">
-        <div class="field"><label class="chk"><input type="checkbox" id="ed-sgShow" ${sg.show?'checked':''}> 입력창 위 추천 문구 표시</label></div>
-        <div class="field inline">
-          <div style="flex:0 0 70px"><label>아이콘</label><input id="ed-sgEmoji" value="${esc(sg.emoji||'')}"></div>
-          <div><label>추천 문구</label><input id="ed-sgText" value="${esc(sg.text||'')}" placeholder="다산 근처 주말 아이디어"></div>
-        </div>
-        <div class="field"><label>입력창 안내 글자</label><input id="ed-ph" value="${esc(L.placeholder||'')}"></div>
-        <div class="field inline">
-          <div><label>가운데 버튼 왼쪽</label><input id="ed-modeA" value="${esc(L.modeA||'Chat')}"></div>
-          <div><label>가운데 버튼 오른쪽</label><input id="ed-modeB" value="${esc(L.modeB||'Work')}"></div>
-        </div>
-        <div class="field"><label class="chk"><input type="checkbox" id="ed-startDrawer" ${L.startDrawer?'checked':''}> 앱을 열면 사이드바(채팅 기록)부터 보이기</label></div>
-        <button class="btn btn-ghost btn-sm" id="saveLook">꾸미기 저장</button>
-      </div>
-    </div>` : ''}
 
     <div class="admin-section ${foldState.pad?'folded':''}">
       <h3 class="foldable" data-fold="pad">하단 여백 (기기 메뉴바 겹침 보정) <span class="fold-arrow">${foldState.pad?'▶':'▼'}</span></h3>
@@ -1920,16 +1902,6 @@ function finishAdminHome(body){
   });
   bindTreeSection(body);
 
-  const sl = $('#saveLook');
-  if(sl) sl.onclick = ()=>{
-    const C = curList();
-    C.suggest = { show: $('#ed-sgShow').checked, emoji: $('#ed-sgEmoji').value.trim(), text: $('#ed-sgText').value };
-    C.placeholder = $('#ed-ph').value || 'ChatGPT에게 물어보세요';
-    C.modeA = $('#ed-modeA').value || 'Chat';
-    C.modeB = $('#ed-modeB').value || 'Work';
-    C.startDrawer = $('#ed-startDrawer').checked;
-    save(); renderGuest(); toast('저장됨');
-  };
   $('#saveBottomPad').onclick = ()=>{ setDevicePad(Math.max(0, Number($('#ed-bottomPad').value)||0)); applyBottomPad(); renderAdminHome(); toast('이 기기의 하단 여백을 저장했습니다'); };
   $('#clearBottomPad').onclick = ()=>{ setDevicePad(null); applyBottomPad(); renderAdminHome(); toast('파일 기본값으로 되돌렸습니다'); };
   const p2f = $('#padToFile');
