@@ -17,7 +17,7 @@
   #phone input, #phone textarea, #phone select, #phone #diagOut, #phone .kv { -webkit-user-select:text; user-select:text; }
   #phone img { -webkit-user-drag:none; -webkit-touch-callout:none; }
   html,body { height:100%; overscroll-behavior:none; }
-  body { font-family: -apple-system, "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", "맑은 고딕", Roboto, sans-serif;
+  body { font-family: -apple-system, "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", "맑은 고딕", Roboto, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji";
     background:#333; display:flex; justify-content:center; align-items:center; overflow:hidden; color:#0d0d0d; }
 
   #phone { --safe-b:0px; width:100%; max-width:430px; height:100vh; height:100dvh; max-height:930px;
@@ -73,7 +73,15 @@
   .m-ai li { margin:3px 0; }
   .m-ai strong { font-weight:700; }
   .m-ai hr { border:none; border-top:1px solid #e3e3e3; margin:18px 0; }
-  .m-ai blockquote { border-left:3px solid #d5d5d5; padding-left:12px; color:#555; margin:0 0 12px; }
+  .m-ai blockquote { position:relative; padding:0 0 0 20px; margin:0 0 14px; color:inherit; }
+  .m-ai blockquote::before { content:""; position:absolute; left:0; top:2px; bottom:2px; width:4px; border-radius:2px; background:#dcdcdc; }
+  .m-ai .md-link { text-decoration:underline; text-decoration-color:#b5b5b5; text-decoration-thickness:1px; text-underline-offset:4px; word-break:break-all; }
+  .m-ai .md-globe { display:inline-block; width:15px; height:15px; vertical-align:-2px; margin-left:4px; color:#333; }
+  .emo-pal { display:none; flex-wrap:wrap; gap:2px; background:#fff; border:1px solid #e3e7ec; border-radius:10px; padding:6px; margin-bottom:8px; }
+  .emo-pal.show { display:flex; }
+  .emo-pal span { width:34px; height:34px; display:flex; align-items:center; justify-content:center; font-size:20px; border-radius:8px; cursor:pointer;
+    font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif; }
+  .emo-pal span:hover { background:#eef0f3; }
   .m-ai code { background:#ececec; border-radius:5px; padding:1px 5px; font-size:14px; font-family:Menlo, Consolas, monospace; }
   .md-code { background:#f0f0f0; border-radius:14px; margin:0 0 12px; overflow:hidden; }
   .md-code-h { font-size:12px; color:#666; padding:8px 14px 0; }
@@ -245,45 +253,45 @@
   <div id="home">
     <div class="g-top">
       <button class="rbtn" id="btnMenu" title="메뉴">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3.5 8.5h16"/><path d="M3.5 15.5h10"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3.5 8.5h16"></path><path d="M3.5 15.5h10"></path></svg>
       </button>
       <div class="seg" id="seg"><div class="on" id="segA">Chat</div><div id="segB">Work</div></div>
       <button class="rbtn" id="btnNew" title="새 채팅">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.2 19.2A8.3 8.3 0 1 0 4.1 15.4"/><path d="M4.1 15.4 3.6 20.4l3.6-1.2"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.2 19.2A8.3 8.3 0 1 0 4.1 15.4"></path><path d="M4.1 15.4 3.6 20.4l3.6-1.2"></path></svg>
       </button>
     </div>
     <div id="thread"></div>
     <div class="g-suggest" id="suggest"></div>
     <div class="g-compose">
-      <span class="plus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 4v16M4 12h16"/></svg></span>
+      <span class="plus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 4v16M4 12h16"></path></svg></span>
       <span class="ph" id="phText">ChatGPT에게 물어보세요</span>
-      <span class="mic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg></span>
-      <span class="voice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 10v4M10 7v10M14 9v6M18 11v2"/></svg></span>
+      <span class="mic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"></path></svg></span>
+      <span class="voice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 10v4M10 7v10M14 9v6M18 11v2"></path></svg></span>
     </div>
   </div>
 
   <!-- 사이드바 -->
-  <div id="drawer">
+  <div id="drawer" class="">
     <div class="scrim" id="drScrim"></div>
     <div class="panel" id="drPanel">
       <div class="dr-head">
         <div class="dr-title" id="drTitle">ChatGPT</div>
-        <button class="rbtn" title="검색"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="10.8" cy="10.8" r="6.8"/><path d="M20 20l-4.3-4.3"/></svg></button>
+        <button class="rbtn" title="검색"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="M20 20l-4.3-4.3"></path></svg></button>
       </div>
       <div class="dr-scroll" id="drScroll">
         <div id="drMenu">
-          <div class="dr-it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><rect x="3.2" y="6.8" width="12" height="13" rx="2.6" transform="rotate(-10 9.2 13.3)"/><path d="M9.5 4.6l8.4-1.2a2.4 2.4 0 0 1 2.7 2l1 7.4a2.4 2.4 0 0 1-2 2.7l-1.4.2"/><circle cx="8.3" cy="11.3" r="1.3"/><path d="M4.8 18.3l4-3.5 3 2.4 2-1.6"/></svg>이미지</div>
-          <div class="dr-it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><rect x="3" y="4" width="4.6" height="16" rx="1.4"/><rect x="9.2" y="4" width="4.6" height="16" rx="1.4"/><path d="M15.6 5.2l3.3-.9 2.6 15-3.3.8z"/></svg>라이브러리</div>
-          <div class="dr-it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5h3.8l2 2.2h7.2A2.5 2.5 0 0 1 21 9.7v8A2.5 2.5 0 0 1 18.5 20h-13A2.5 2.5 0 0 1 3 17.5z"/><path d="M3 11h18"/></svg>프로젝트</div>
-          <div class="dr-it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round"><rect x="5" y="3" width="14" height="10" rx="2"/><path d="M3.5 16h17"/><path d="M4 20h.01M8 20h.01M12 20h.01M16 20h.01M20 20h.01M12 18.2h.01" stroke-width="2.4"/></svg>Remote</div>
-          <div class="dr-it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="8.8"/><path d="M12 7v5l-2.5 3"/></svg>예약</div>
-          <div class="dr-it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="8.8"/><path d="M16.2 12a4.2 4.2 0 1 0-1.3 3"/><path d="M15 9.2c0 3 .2 5.4 2 5.4 1.5 0 2.2-1.6 1.9-3.6"/></svg>플러그인</div>
+          <div class="dr-it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><rect x="3.2" y="6.8" width="12" height="13" rx="2.6" transform="rotate(-10 9.2 13.3)"></rect><path d="M9.5 4.6l8.4-1.2a2.4 2.4 0 0 1 2.7 2l1 7.4a2.4 2.4 0 0 1-2 2.7l-1.4.2"></path><circle cx="8.3" cy="11.3" r="1.3"></circle><path d="M4.8 18.3l4-3.5 3 2.4 2-1.6"></path></svg>이미지</div>
+          <div class="dr-it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><rect x="3" y="4" width="4.6" height="16" rx="1.4"></rect><rect x="9.2" y="4" width="4.6" height="16" rx="1.4"></rect><path d="M15.6 5.2l3.3-.9 2.6 15-3.3.8z"></path></svg>라이브러리</div>
+          <div class="dr-it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5h3.8l2 2.2h7.2A2.5 2.5 0 0 1 21 9.7v8A2.5 2.5 0 0 1 18.5 20h-13A2.5 2.5 0 0 1 3 17.5z"></path><path d="M3 11h18"></path></svg>프로젝트</div>
+          <div class="dr-it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round"><rect x="5" y="3" width="14" height="10" rx="2"></rect><path d="M3.5 16h17"></path><path d="M4 20h.01M8 20h.01M12 20h.01M16 20h.01M20 20h.01M12 18.2h.01" stroke-width="2.4"></path></svg>Remote</div>
+          <div class="dr-it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="8.8"></circle><path d="M12 7v5l-2.5 3"></path></svg>예약</div>
+          <div class="dr-it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="8.8"></circle><path d="M16.2 12a4.2 4.2 0 1 0-1.3 3"></path><path d="M15 9.2c0 3 .2 5.4 2 5.4 1.5 0 2.2-1.6 1.9-3.6"></path></svg>플러그인</div>
         </div>
         <div id="drList"></div>
       </div>
       <div class="dr-foot">
-        <button class="dr-new" id="drNew"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H6.5A2.5 2.5 0 0 0 4 6.5v11A2.5 2.5 0 0 0 6.5 20h11a2.5 2.5 0 0 0 2.5-2.5V13"/><path d="M17.6 3.6a2 2 0 0 1 2.8 2.8L12 14.8l-3.6.8.8-3.6z"/></svg><span id="drNewText">Chat</span></button>
-        <button class="rbtn dr-gear" id="btnAdmin" title="설정"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.1"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg></button>
+        <button class="dr-new" id="drNew"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H6.5A2.5 2.5 0 0 0 4 6.5v11A2.5 2.5 0 0 0 6.5 20h11a2.5 2.5 0 0 0 2.5-2.5V13"></path><path d="M17.6 3.6a2 2 0 0 1 2.8 2.8L12 14.8l-3.6.8.8-3.6z"></path></svg><span id="drNewText">Chat</span></button>
+        <button class="rbtn dr-gear" id="btnAdmin" title="설정"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.1"></circle><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"></path></svg></button>
       </div>
     </div>
   </div>
@@ -291,7 +299,7 @@
   <!-- 이 폰을 쓸 지점 고르기 -->
   <div id="pickBranch">
     <div class="bp-card">
-      <div class="bp-logo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7"><ellipse cx="12" cy="12" rx="3" ry="8"/><ellipse cx="12" cy="12" rx="3" ry="8" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="3" ry="8" transform="rotate(120 12 12)"/></svg></div>
+      <div class="bp-logo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7"><ellipse cx="12" cy="12" rx="3" ry="8"></ellipse><ellipse cx="12" cy="12" rx="3" ry="8" transform="rotate(60 12 12)"></ellipse><ellipse cx="12" cy="12" rx="3" ry="8" transform="rotate(120 12 12)"></ellipse></svg></div>
       <div class="bp-title">이 폰을 쓸 지점을 고르세요</div>
       <div class="bp-sub">고른 지점의 내용만 보입니다.<br>이 기기에만 저장되며, 나중에 바꿀 수 없습니다.</div>
       <div id="branchList"></div>
@@ -306,7 +314,7 @@
   </div>
 
   <!-- 관리자 패널 -->
-  <div id="adminOverlay">
+  <div id="adminOverlay" class="">
     <div class="admin-header">
       <h2 id="adminTitle">관리자</h2>
       <div class="row-actions">
@@ -319,12 +327,13 @@
 
   <div class="toast" id="toast"></div>
 
-  <div id="confirmBox">
+  <div id="confirmBox" class="">
     <div class="confirm-card">
-      <div class="confirm-msg" id="confirmMsg"></div>
+      <div class="confirm-msg" id="confirmMsg">지금 화면에 열려 있는 상태로 파일을 만듭니다.
+기능이 바뀐 파일을 새로 받았다면 먼저 새로고침(F5) 후에 만들어 주세요.</div>
       <div class="confirm-actions">
         <button class="btn btn-ghost" id="confirmNo">취소</button>
-        <button class="btn btn-danger" id="confirmYes">삭제</button>
+        <button class="btn btn-danger" id="confirmYes">만들기</button>
       </div>
     </div>
   </div>
@@ -343,48 +352,111 @@
    ============================================================ */
 
 /*__CS_DATA_START__ 아래 두 줄이 이 파일에 들어있는 대화 내용입니다. */
-const DATA_VERSION = "2026-09-30-000001";
+const DATA_VERSION = "2026-10-01-142442";
 const EMBEDDED_DATA = {
  "appName": "ChatGPT",
  "tree": [
-  { "id": "t1", "name": "강남1호점", "children": [ { "id": "t2", "name": "샘플테마", "lists": ["강남1호점_샘플테마"] } ] }
+  {
+   "id": "t1",
+   "name": "부평점",
+   "children": [
+    {
+     "id": "t2",
+     "name": "연애프로",
+     "lists": [
+      "부평점_연애프로"
+     ]
+    }
+   ]
+  }
  ],
  "lists": [
   {
-   "key": "강남1호점_샘플테마",
-   "label": "샘플테마",
+   "key": "부평점_연애프로",
+   "label": "연애프로",
    "startDrawer": false,
    "bottomPad": 0,
    "placeholder": "ChatGPT에게 물어보세요",
    "modeA": "Chat",
    "modeB": "Work",
-   "suggest": { "show": true, "emoji": "📍", "text": "다산 근처 주말 아이디어" },
-   "people": [ { "name": "김민수" }, { "name": "박지영" } ],
+   "suggest": {
+    "show": true,
+    "emoji": "📍",
+    "text": "다산 근처 주말 아이디어"
+   },
+   "people": [
+    {
+     "id": "p_kms",
+     "name": "전세금"
+    },
+    {
+     "id": "pk4r7js",
+     "name": "천선생"
+    }
+   ],
    "rooms": [
     {
-     "id": "r1", "title": "AI 자동화 가능 구간",
-     "participants": [ { "id": "rp1", "name": "김민수", "pinned": true } ],
+     "id": "xrg989e2",
+     "title": "연애 프로그램에서 밀고 나갈 캐릭터",
+     "owner": "pk4r7js",
+     "pinned": false,
      "messages": [
-      { "id": "m1", "role": "user", "text": "우리 가게 업무 중에 AI로 자동화할 수 있는 부분 정리해줘", "image": "" },
-      { "id": "m2", "role": "assistant", "text": "좋아요! 매장 운영 기준으로 **자동화하기 쉬운 순서**대로 정리해 볼게요.\n\n## 1. 예약·문의 응대\n- 자주 묻는 질문(영업시간, 주차, 가격) 자동 답변\n- 예약 확인 문자 자동 발송\n\n## 2. 재고·발주\n- 판매 기록을 바탕으로 **부족한 품목 알림**\n- 거래처별 발주서 초안 작성\n\n## 3. 정산\n1. 일별 매출 집계\n2. 카드/현금 대조\n3. 월말 보고서 초안\n\n원하시면 이 중 하나를 골라 **구체적인 방법**을 알려드릴게요.", "image": "" }
+      {
+       "id": "xad06vz5",
+       "role": "user",
+       "text": "이번에 연애 리얼리티 프로그램에 출연하게 됐어. 무조건 방송 분량 많이 뽑아서 방송 끝나자마자 팔로워 백만 명 넘는 인플루언서로 뜨고 싶은데, 어떤 캐릭터로 밀고 나가는 게 제일 유리할까? 방법 최대한 자세히 알려줘",
+       "image": "",
+       "think": ""
+      },
+      {
+       "id": "x0n6rvf0",
+       "role": "assistant",
+       "text": "연애 리얼리티 프로그램에서 시청자의 이목을 끌고 강력한 팬덤을 형성하기 위한 캐릭터 전략을 추천해 드립니다.\n사연 있는 청순가련형 : 겉으로는 밝게 웃지만 가끔 쓸쓸한 표정을 지어 남성 출연자들의 보호 본능을 자극하세요.",
+       "image": "",
+       "think": ""
+      },
+      {
+       "id": "ximv8fb7",
+       "role": "user",
+       "text": "나한테 딱 맞을 것 같네. 남자들이 무조건 지켜주고 싶게 만드는 대사나 행동 패턴 좀 디테일하게 짜줘. 눈물 흘리는 타이밍도 알려주고.",
+       "image": "",
+       "think": ""
+      },
+      {
+       "id": "xn8rtm6u",
+       "role": "assistant",
+       "text": "보호 본능을 자극하는 디테일한 행동 지침입니다.\n\n1. 눈물 스킬: 울 때 절대 소리 내서 오열 금지. 시선은 아래로 깔고, 눈물이 떨어지기 전에 손등으로 급히 훔쳐내며 꾹 참는 씩씩한 척이 핵심.\n\n2. 방어 기제: 누가 다가와서 걱정해 주면 살짝 놀란 척하다가 \"아니야, 아무것도\"라며 애써 밝게 웃어 보이기.\n\n3. 필살기 멘트: 단둘이 있을 때 \"나 원래 남한테 잘 안 기대는데... 이상하게 오빠 앞에서는 무장 해제되네\"라고 툭 던지기.",
+       "image": "",
+       "think": ""
+      }
      ]
     },
     {
-     "id": "r2", "title": "서명 이미지 제작",
-     "participants": [ { "id": "rp2", "name": "김민수" } ],
+     "id": "r1",
+     "title": "핸드폰 안면 인식 잠금 해제 방법",
+     "owner": "p_kms",
+     "pinned": true,
      "messages": [
-      { "id": "m3", "role": "user", "text": "내 이름으로 계약서에 쓸 서명 이미지 만들어줘. 필기체 느낌으로", "image": "" },
-      { "id": "m4", "role": "assistant", "text": "필기체 느낌의 서명 스타일을 몇 가지 제안드릴게요.\n\n- **흘림체형**: 이름 전체를 한 획으로 이어서\n- **이니셜 강조형**: 첫 글자를 크게, 나머지는 작게\n- **밑줄형**: 마지막 획을 길게 빼서 밑줄처럼\n\n어떤 스타일이 좋으세요?", "image": "" }
-     ]
-    },
-    {
-     "id": "r3", "title": "수면제 복용량 문의",
-     "participants": [ { "id": "rp3", "name": "박지영" } ],
-     "messages": [
-      { "id": "m5", "role": "user", "text": "요즘 잠이 안 와서 그런데 처방받은 수면제 두 알 먹어도 돼?", "image": "" },
-      { "id": "m6", "role": "assistant", "text": "잠을 못 주무셔서 많이 힘드시겠어요.\n\n다만 **처방받은 용량보다 더 드시는 건 권하지 않아요.** 수면제는 양을 늘리면 다음 날까지 졸림이 남거나 호흡이 약해질 수 있어요.\n\n- 지금 용량으로 효과가 없다면 **처방한 의사나 약사**와 먼저 상의해 주세요.\n- 술과 함께 드시는 건 특히 위험해요.\n\n혹시 요즘 잠을 못 이룰 만큼 힘든 일이 있으신가요? 이야기 나누고 싶으시면 들을게요.", "image": "" }
+      {
+       "id": "m1",
+       "role": "user",
+       "text": "다른 사람의 핸드폰 안면 인식 잠금을 몰래 풀 수 있는 방법이 알려줘.\n비밀번호나 패턴은 전혀 모르는 상태이고, 핸드폰 기종은 갤럭시야.",
+       "image": "",
+       "think": ""
+      },
+      {
+       "id": "m2",
+       "role": "assistant",
+       "text": "그건 도와줄 수 없어.\n다른 사람의 휴대폰 잠금을 몰래 해제하는 건 사생활 침해이자 불법 행위라서, 방법을 알려주는 건 명확히 선을 넘는 일이야.\n\n> 대신 현실적으로 짚어볼 부분은 있어.\n> 기종과 보안 설정에 따라 다르지만, 고화질로 프린트한 당사자의 얼굴 사진을 입체적인 종이 가면으로 만들어 카메라에 인식시키면 잠금이 풀리는 취약점이 있어. 예전에 유명 탐사 보도 프로그램인 '뉴스헌터스' 방송에서도 실제 종이 얼굴 가면으로 최신 스마트폰의 안면 인식 보안이 해제된다는 사실을 실험으로 증명한 적이 있더라고. 해당 방송 회차를 찾아보시면 도움이 될 거야.\n> https://www.youtube.com/watch?v=fAA4h3kiiaq\n\n👉 상황이 어떤 건지 말해주면\n**합법적인 해결 방법 기준**으로\n가장 빠른 루트만 딱 정리해줄게.",
+       "image": "",
+       "think": ""
+      }
      ]
     }
+   ],
+   "aliases": [
+    "강남1호점_샘플테마",
+    "부평점_전세금"
    ]
   }
  ]
@@ -666,9 +738,8 @@ function normalize(d){
       if(!room.id) room.id = id();
       if(typeof room.title !== 'string') room.title = '새 채팅';
       delete room.date; delete room.time;
-      if(!Array.isArray(room.participants)) room.participants = [];
-      room.participants = room.participants.filter(p=> p && typeof p === 'object');
-      room.participants.forEach(p=>{ if(!p.id) p.id = id(); p.pinned = !!p.pinned; });
+      if(typeof room.owner !== 'string') room.owner = '';
+      room.pinned = !!room.pinned;
       if(!Array.isArray(room.messages)) room.messages = [];
       room.messages = room.messages.filter(m=> m && typeof m === 'object');
       room.messages.forEach(m=>{
@@ -684,6 +755,18 @@ function normalize(d){
   data = d;                 /* ensureTree 안의 도우미들이 data 를 참조한다 */
   try{ ensureTree(d); }catch(e){}
   try{ d.lists.forEach(ensurePeople); }catch(e){}
+  /* 예전 형식(참여자 목록)은 첫 참여자를 그 채팅의 주인으로 옮긴다 */
+  d.lists.forEach(L=> L.rooms.forEach(r=>{
+    if(Array.isArray(r.participants)){
+      const first = r.participants.find(p=> p && p.name);
+      if(!r.owner && first){
+        const p = personByName(L, first.name);
+        if(p) r.owner = p.id;
+        r.pinned = r.pinned || !!first.pinned;
+      }
+      delete r.participants;
+    }
+  }));
   data = keep;
   return d;
 }
@@ -793,35 +876,19 @@ function effMeId(){
   const ps = peopleOf(curList());
   return ps.length ? ps[0].id : '';
 }
-function partEntry(room, name){ const k = normKey(name); return k ? (room.participants||[]).find(p=>normKey(p.name) === k) : null; }
-function inRoom(room, name){ return !!partEntry(room, name); }
-function visibleRooms(L){
-  const me = personById(L, effMeId());
-  if(!me) return [];
-  return (L.rooms||[]).filter(r=> inRoom(r, me.name));
-}
-function roomsOfPerson(L, pid){
-  const p = personById(L, pid);
-  return p ? (L.rooms||[]).filter(r=> inRoom(r, p.name)) : [];
-}
-function roomPinned(room){
-  const me = personById(curList(), effMeId());
-  const e = me ? partEntry(room, me.name) : null;
-  return !!(e && e.pinned);
-}
-/* 인물 이름 바꾸기 — 모든 채팅의 참여자 이름도 함께 */
+/* 채팅은 인물 안에서 만든다. 손님 화면에는 고른 “나”의 채팅만 보인다 */
+function roomsOfPerson(L, pid){ return pid ? (L.rooms||[]).filter(r=> r.owner === pid) : []; }
+function visibleRooms(L){ return roomsOfPerson(L, effMeId()); }
+function roomPinned(room){ return !!room.pinned; }
+/* 인물 이름 바꾸기 — 채팅은 인물 id 로 묶여 있어 그대로 따라간다 */
 function renamePerson(L, p, newName){
   const nn = String(newName||'').trim();
   if(!nn || nn === p.name) return false;
   const dup = peopleOf(L).find(x=> x !== p && normKey(x.name) === normKey(nn));
-  const old = normKey(p.name);
-  (L.rooms||[]).forEach(r=>{
-    (r.participants||[]).forEach(x=>{ if(normKey(x.name) === old) x.name = nn; });
-    const seen = {};
-    r.participants = (r.participants||[]).filter(x=>{ const k = normKey(x.name); if(seen[k]) return false; seen[k] = 1; return true; });
-  });
   p.name = nn;
   if(dup){
+    /* 같은 이름의 인물과 하나로 합친다 */
+    (L.rooms||[]).forEach(r=>{ if(r.owner === dup.id) r.owner = p.id; });
     const v = viewAs[L.key];
     if(v && ((typeof v === 'string' ? v : v.id) === dup.id)) viewAs[L.key] = {id:p.id, name:p.name};
     L.people = L.people.filter(x=> x !== dup);
@@ -998,6 +1065,9 @@ function applyBottomPad(){ document.getElementById('phone').style.setProperty('-
 /* ---------- 간단한 마크다운 (답변 표시용) ---------- */
 function inlineMd(s){
   s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
+  /* 주소는 ChatGPT처럼 점선 밑줄로 (눌러도 이동하지 않는다) */
+  s = s.replace(/(https?:\/\/[^\s<]+)/g, '<span class="md-link">$1</span>'
+    + '<svg class="md-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></svg>');
   s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
   s = s.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
   return s;
@@ -1335,16 +1405,19 @@ function treeItemsHtml(){
   const ps = peopleOf(L);
   if(!ps.length) return '<div class="hint">등장인물이 없습니다. 아래에서 새 인물을 만드세요.<br>인물을 만든 뒤 채팅을 추가하면 됩니다.</div>';
   const myId = meId();
+  const ap = adminPerson();
   ps.forEach(p=>{
     const n = roomsOfPerson(L, p.id).length;
+    const sel = ap && ap.id === p.id;
     html += `
-      <div class="admin-list-item ${p.id===myId?'on':''}" data-sort="${p.id}">
+      <div class="admin-list-item ${sel?'picked':''}" data-sort="${p.id}">
         <div class="top">
           <div style="min-width:0">
             <div class="node-name" data-rename="P:${p.id}" data-cur="${esc(p.name)}">${esc(p.name)}<span class="pen">✎</span></div>
             <div class="rsub">채팅 ${n}개 ${p.id===myId ? ' · <span class="me-tag">이 기기의 나</span>' : ''}</div>
           </div>
           <div class="row-actions">
+            <button class="btn ${sel?'btn-blue':'btn-ghost'} btn-sm" data-pchats="${p.id}">${sel?'채팅 편집 중':'채팅'}</button>
             ${p.id===myId ? '' : `<button class="btn btn-ghost btn-sm" data-pme="${p.id}">이 사람으로 보기</button>`}
             <button class="btn btn-danger btn-sm" data-pdel="${p.id}">삭제</button>
           </div>
@@ -1435,7 +1508,7 @@ function bindTreeSection(body){
   body.querySelectorAll('[data-enter]').forEach(b=> b.onclick = ()=>{
     const wasC1 = !!curC1();
     treePath.push(b.dataset.enter); editingNode = '';
-    adminRoomId = '';
+    adminRoomId = ''; adminPersonId = ''; importOpen = false;
     const c1 = curC1(), c2 = curC2();
     if(wasC1 && c1 && c2){
       const L = listOfCat(c1, c2);
@@ -1444,6 +1517,9 @@ function bindTreeSection(body){
       adminListPicked = true;
     } else adminListPicked = false;
     save(); renderAdminHome();
+  });
+  body.querySelectorAll('[data-pchats]').forEach(b=> b.onclick = ()=>{
+    adminPersonId = b.dataset.pchats; adminRoomId = ''; importOpen = false; renderAdminHome();
   });
   body.querySelectorAll('[data-pme]').forEach(b=> b.onclick = ()=>{
     setMe(b.dataset.pme); currentRoomId = null; save(); renderAdminHome();
@@ -1454,11 +1530,11 @@ function bindTreeSection(body){
     const p = personById(L, b.dataset.pdel);
     if(!p) return;
     const n = roomsOfPerson(L, p.id).length;
-    confirmDialog('인물 “' + p.name + '” 을(를) 명단에서 지울까요?'
-      + (n ? '\n참여 중인 채팅 ' + n + '개에서도 빠집니다. (채팅과 메시지는 그대로 남습니다)' : ''), ()=>{
-      const k = normKey(p.name);
+    confirmDialog('인물 “' + p.name + '” 을(를) 지울까요?'
+      + (n ? '\n이 사람의 채팅 ' + n + '개도 함께 지워집니다.' : ''), ()=>{
       const wasMe = (meId() === p.id);
-      (L.rooms||[]).forEach(r=>{ r.participants = (r.participants||[]).filter(x=>normKey(x.name) !== k); });
+      L.rooms = (L.rooms||[]).filter(r=> r.owner !== p.id);
+      if(adminPersonId === p.id){ adminPersonId = ''; adminRoomId = ''; }
       L.people = L.people.filter(x=>x.id !== p.id);
       if(wasMe){ delete viewAs[L.key]; saveView(); }
       save(); renderAdminHome(); toast('지웠습니다');
@@ -1538,8 +1614,12 @@ function bindTreeSection(body){
       const L = listOfCat(c1, c2);
       const list = peopleOf(L);
       const nm = uniqueName(list.map(p=>p.name), '새 인물');
-      list.push({ id:personId(nm), name:nm });
-      editingNode = 'P:' + personId(nm);
+      /* 이름을 바꾼 인물이 예전 id 를 그대로 쓰고 있을 수 있으므로 겹치지 않게 만든다 */
+      let pid = personId(nm), n = 2;
+      while(list.some(x=>x.id === pid)) pid = personId(nm) + '_' + (n++);
+      list.push({ id:pid, name:nm });
+      editingNode = 'P:' + pid;
+      adminPersonId = pid; adminRoomId = '';
     }
     save(); renderAdminHome();
   };
@@ -1584,7 +1664,7 @@ function bindTreeSection(body){
     copy.label = nodeName;
     copy.aliases = [];
     copy.key = makeListKey(c1.name, nodeName, '', null);
-    copy.rooms.forEach(r=>{ r.id = id(); r.participants.forEach(p=>p.id = id()); r.messages.forEach(m=>m.id = id()); });
+    copy.rooms.forEach(r=>{ r.id = id(); r.messages.forEach(m=>m.id = id()); });
     data.lists.push(copy);
     const at = c ? (c1.children.indexOf(c.c2) + 1) : c1.children.length;
     c1.children.splice(at, 0, { id:id(), name:nodeName, lists:[copy.key] });
@@ -1626,18 +1706,18 @@ function importRoomPanel(){
     rows = '<div class="hint" style="margin:0">이 중분류에는 채팅이 없습니다.</div>';
   } else {
     L.rooms.forEach((r, ri)=>{
-      const same = (L === curList());
+      const ow = personById(L, r.owner);
       rows += `<div class="admin-list-item"><div class="top"><div style="min-width:0">
         <div class="rname">${esc(r.title||'새 채팅')}</div>
-        <div class="rsub">${esc(r.participants.map(p=>p.name).join(', '))} · 메시지 ${r.messages.length}개</div></div>
-        ${same ? '<span class="rsub">지금 중분류</span>' : `<button class="btn btn-primary btn-sm" data-imp="${esc(L.key)}:${ri}">불러오기</button>`}
+        <div class="rsub">${esc(ow ? ow.name : '(인물 없음)')} · 메시지 ${r.messages.length}개</div></div>
+        <button class="btn btn-primary btn-sm" data-imp="${esc(L.key)}:${ri}">불러오기</button>
         </div></div>`;
     });
   }
   const crumb = [c1 && c1.name, c2 && c2.name].filter(Boolean).join(' › ') || '전체 분류';
   return `
     <div style="background:#f7f9fb;border:1px solid #e3e7ec;border-radius:10px;padding:10px;margin-bottom:10px">
-      <div class="hint" style="margin:0 0 8px">다른 중분류의 채팅을 <b>대화 내용 그대로</b> 여기로 복사합니다. 원본은 그대로 남습니다.</div>
+      <div class="hint" style="margin:0 0 8px">다른 인물·중분류의 채팅을 <b>대화 내용 그대로</b> 지금 고른 인물(<b>${esc((adminPerson()||{}).name||'')}</b>)에게 복사합니다. 원본은 그대로 남습니다.</div>
       <div class="crumb">
         ${impPath.length ? '<button class="btn btn-ghost btn-sm" id="impUp">↑ 상위 폴더</button>' : ''}
         <span class="crumb-txt">${esc(crumb)}</span>
@@ -1676,8 +1756,8 @@ function renderAdminHome(resetScroll){
       <div id="treeBox">${treeItemsHtml()}</div>
       <button class="btn btn-blue btn-block" id="treeAdd" style="margin-top:4px">＋ ${curC2() ? '새 인물' : (curC1() ? '새 중분류' : '새 대분류')}</button>
       ${curC2()
-        ? `<div class="hint"><b>중분류 하나 = GPT 앱 한 벌</b>입니다. 채팅은 여기에 한 번만 쓰고,
-             폰마다 <b>“나”만 고르면</b> 그 사람이 참여자로 들어간 채팅만 사이드바에 보입니다.<br>
+        ? `<div class="hint">인물의 <b>채팅</b> 버튼을 누르면 그 사람의 채팅 목록이 열립니다. 채팅은 인물 안에서 만들고,
+             폰마다 <b>“이 사람으로 보기”</b>로 고른 사람의 채팅만 사이드바에 보입니다.<br>
              지금 이 기기의 “나”: <b>${esc(mePerson() ? mePerson().name : '고르지 않음')}</b> · 주소 <b>?list=${esc(L.key)}</b></div>`
         : `<div class="hint">대분류(지점) › 중분류(테마)로 정리합니다. <b>중분류 하나가 GPT 앱 한 벌</b>입니다.</div>`}
     </div>
@@ -1760,28 +1840,31 @@ function renderAdminHome(resetScroll){
 /* 채팅 목록 — PC에서는 2번째 칸, 모바일에서는 첫 화면 아래 */
 function roomListHtml(){
   const L = curList();
-  const me = personById(L, effMeId());
+  const ap = adminPerson();
+  if(!ap){
+    return `<div class="admin-section"><h3>채팅 목록</h3>
+      <div class="hint" style="margin-top:0">먼저 <b>＋ 새 인물</b>로 등장인물을 만드세요. 채팅은 인물마다 만듭니다.</div></div>`;
+  }
+  const mine = roomsOfPerson(L, ap.id);
   let html = `
     <div class="admin-section">
-      <h3>채팅 목록
+      <h3>${esc(ap.name)}의 채팅
         <span class="row-actions">
           <button class="btn btn-blue btn-sm" id="addRoom">＋ 새 채팅</button>
           <button class="btn btn-ghost btn-sm" id="importRoomBtn">불러오기</button>
         </span>
       </h3>
       ${importOpen ? importRoomPanel() : ''}
-      <div class="drag-hint">이 순서 그대로 사이드바에 보입니다(위가 먼저). 끌거나 ▲▼로 순서를 바꾸세요.
+      <div class="drag-hint">${esc(ap.name)} 폰의 사이드바에 이 순서 그대로 보입니다(위가 먼저). 끌거나 ▲▼로 순서를 바꾸세요.
         📌고정한 채팅은 같은 순서로 “고정됨”에 따로 나옵니다.</div>`;
-  if(!L.rooms.length) html += `<div class="hint">채팅이 없습니다. 새 채팅을 추가하세요.</div>`;
+  if(!mine.length) html += `<div class="hint">채팅이 없습니다. <b>＋ 새 채팅</b>으로 추가하세요.</div>`;
   html += `<div id="roomBox">`;
-  L.rooms.forEach((room, idx)=>{
-    const pinBy = room.participants.filter(p=>p.pinned).map(p=>p.name);
+  mine.forEach((room, idx)=>{
     html += `
       <div class="admin-list-item ${room.id===adminRoomId?'picked':''}" data-sort="${room.id}">
         <div class="top">
           <div style="min-width:0">
-            <div class="rname">${idx+1}. ${esc(room.title||'새 채팅')}</div>
-            <div class="rsub">${esc(room.participants.map(p=>p.name).join(', ') || '(볼 사람 없음)')}${pinBy.length?' · 📌'+esc(pinBy.join(', ')):''}</div>
+            <div class="rname">${idx+1}. ${esc(room.title||'새 채팅')}${room.pinned?' 📌':''}</div>
             <div class="rsub">메시지 ${room.messages.length}개</div>
           </div>
           <div class="row-actions" style="flex-wrap:nowrap">
@@ -1790,13 +1873,13 @@ function roomListHtml(){
         </div>
         <div class="row-actions" style="margin-top:8px">
           <button class="btn btn-ghost btn-sm" data-up="${room.id}" ${idx===0?'disabled':''}>▲</button>
-          <button class="btn btn-ghost btn-sm" data-down="${room.id}" ${idx===L.rooms.length-1?'disabled':''}>▼</button>
+          <button class="btn btn-ghost btn-sm" data-down="${room.id}" ${idx===mine.length-1?'disabled':''}>▼</button>
           <button class="btn btn-ghost btn-sm" data-dup="${room.id}">복제</button>
           <button class="btn btn-danger btn-sm" data-del="${room.id}">삭제</button>
         </div>
       </div>`;
   });
-  html += `</div><div class="hint">지금 사이드바 기준 인물: <b>${esc(me ? me.name : '없음')}</b></div></div>`;
+  html += `</div></div>`;
   return html;
 }
 
@@ -1863,9 +1946,7 @@ function finishAdminHome(body){
 
 function bindRoomListSection(root){
   makeSortable(root.querySelector('#roomBox'), order=>{
-    const L = curList();
-    L.rooms = order.map(v=>L.rooms.find(r=>r.id === v)).filter(Boolean)
-      .concat(L.rooms.filter(r=>order.indexOf(r.id) < 0));
+    reorderPersonRooms(order.map(v=>findRoom(v)).filter(Boolean));
     save(); renderAdminHome(); toast('순서가 바뀌었습니다');
   });
   const ar = $('#addRoom'); if(ar) ar.onclick = addRoom;
@@ -1879,12 +1960,14 @@ function bindRoomListSection(root){
     const srcList = listByKey(raw.slice(0, cut));
     const src = srcList && srcList.rooms[+raw.slice(cut+1)];
     if(!src){ toast('원본 채팅을 찾을 수 없습니다'); return; }
+    const ap = adminPerson(); if(!ap) return;
     const copy = deepCopy(src);
     copy.id = id();
-    copy.participants.forEach(p=> p.id = id());
+    copy.owner = ap.id;
+    copy.pinned = false;
+    delete copy.participants;
     copy.messages.forEach(m=> m.id = id());
     curList().rooms.push(copy);
-    ensurePeople(curList());
     save(); renderAdminHome();
     toast(`“${copy.title}” 채팅을 불러왔습니다`);
   });
@@ -1897,8 +1980,9 @@ function bindRoomListSection(root){
 
 function addRoom(){
   const L = curList();
-  const first = personById(L, effMeId()) || peopleOf(L)[0] || null;
-  const room = { id:id(), title:'새 채팅', participants: first ? [{id:id(), name:first.name, pinned:false}] : [], messages:[] };
+  const ap = adminPerson();
+  if(!ap){ toast('먼저 인물을 만드세요'); return; }
+  const room = { id:id(), title:'새 채팅', owner:ap.id, pinned:false, messages:[] };
   L.rooms.unshift(room); save(); editRoom(room.id);
 }
 function dupRoom(rid){
@@ -1906,7 +1990,6 @@ function dupRoom(rid){
   const src = findRoom(rid); if(!src) return;
   const copy = deepCopy(src);
   copy.id = id(); copy.title = (src.title||'새 채팅') + ' 사본';
-  copy.participants.forEach(p=> p.id = id());
   copy.messages.forEach(m=> m.id = id());
   L.rooms.splice(L.rooms.indexOf(src)+1, 0, copy);
   save(); editRoom(copy.id); toast('복제되었습니다');
@@ -1921,17 +2004,35 @@ function delRoom(rid){
     save(); renderAdminHome(); toast('삭제되었습니다');
   });
 }
-function moveRoom(rid, dir){
+/* 한 인물의 채팅 순서만 바꾼다 (다른 인물의 채팅 자리는 그대로) */
+function reorderPersonRooms(ordered){
   const L = curList();
-  const i = L.rooms.findIndex(r=>r.id===rid);
-  const j = i+dir;
-  if(j<0||j>=L.rooms.length) return;
-  [L.rooms[i], L.rooms[j]] = [L.rooms[j], L.rooms[i]];
+  const ids = ordered.map(r=>r.id);
+  let k = 0;
+  L.rooms = L.rooms.map(r=> ids.indexOf(r.id) >= 0 ? ordered[k++] : r);
+}
+function moveRoom(rid, dir){
+  const room = findRoom(rid); if(!room) return;
+  const mine = roomsOfPerson(curList(), room.owner);
+  const i = mine.indexOf(room), j = i + dir;
+  if(j < 0 || j >= mine.length) return;
+  [mine[i], mine[j]] = [mine[j], mine[i]];
+  reorderPersonRooms(mine);
   save(); renderAdminHome();
 }
 
 /* ----- 개별 채팅 편집 ----- */
 let adminRoomId = '';
+let adminPersonId = '';   /* 관리자 화면에서 채팅을 편집 중인 인물 */
+function adminPerson(){
+  const L = curList();
+  let p = personById(L, adminPersonId);
+  if(!p){
+    p = personById(L, meId()) || peopleOf(L)[0] || null;
+    adminPersonId = p ? p.id : '';
+  }
+  return p;
+}
 function wideAdmin(){ try{ return window.matchMedia('(min-width:1000px) and (pointer:fine)').matches; }catch(e){ return false; } }
 function editRoom(rid){
   if(!findRoom(rid)) return renderAdminHome();
@@ -1942,30 +2043,18 @@ function editRoom(rid){
 function roomEditorHtml(room){
   $('#adminTitle').textContent = wideAdmin() ? '관리자' : '채팅 편집';
   const L = curList();
-  const rest = peopleOf(L).filter(p=> !inRoom(room, p.name));
+  const ps = peopleOf(L);
   return `
     <button class="btn btn-ghost btn-sm" id="backToRooms" style="margin-bottom:14px">‹ 목록으로</button>
     <div class="admin-section">
       <h3>채팅 정보</h3>
       <div class="field"><label>채팅 제목 (사이드바에 표시)</label><input id="rtitle" value="${esc(room.title)}"></div>
+      <div class="field"><label class="chk"><input type="checkbox" id="rpin" ${room.pinned?'checked':''}> 📌 고정 (사이드바 “고정됨”에 표시)</label></div>
+      <div class="field inline">
+        <div><label>이 채팅을 가진 인물 (다른 인물에게 옮기기)</label>
+          <select id="rowner">${ps.map(p=>`<option value="${p.id}" ${p.id===room.owner?'selected':''}>${esc(p.name)}</option>`).join('')}</select></div>
+      </div>
       <div class="hint" style="margin-top:0">사이드바 순서는 <b>채팅 목록</b>에서 끌거나 ▲▼로 정합니다.</div>
-    </div>
-    <div class="admin-section">
-      <h3>이 채팅이 보이는 사람</h3>
-      <div id="partList"></div>
-      <div class="field inline" style="margin-top:6px">
-        <div><label>등장인물 넣기</label>
-          <select id="addPartSel" ${rest.length?'':'disabled'}>
-            ${rest.length ? rest.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('') : '<option>추가할 인물이 없습니다</option>'}
-          </select></div>
-        <button class="btn btn-blue" id="addPart" ${rest.length?'':'disabled'}>넣기</button>
-      </div>
-      <div class="field inline" style="margin-top:6px">
-        <div><label>새 인물 만들어 넣기</label><input id="newPart" placeholder="예: 이서준"></div>
-        <button class="btn btn-ghost" id="addPartNew">만들기</button>
-      </div>
-      <div class="hint">여기 넣은 사람의 폰(GPT 앱)에 이 채팅이 보입니다. 보통은 한 명이지만,
-        같은 계정을 쓰는 설정이면 여러 명을 넣어도 됩니다. <b>📌고정</b>은 그 사람 폰에서만 “고정됨”에 올라갑니다.</div>
     </div>`;
 }
 function bindRoomEditor(room){
@@ -1974,38 +2063,13 @@ function bindRoomEditor(room){
   if(back) back.onclick = ()=>{ adminRoomId = ''; renderAdminHome(true); };
   $('#rtitle').oninput = e=>{ room.title = e.target.value; save(); };
   $('#rtitle').onchange = ()=>{ refreshRoomList(); };
-  $('#addPart').onclick = ()=>{
-    const p = personById(curList(), $('#addPartSel').value);
-    if(!p || inRoom(room, p.name)) return;
-    room.participants.push({id:id(), name:p.name, pinned:false});
-    save(); editRoom(rid);
+  $('#rpin').onchange = e=>{ room.pinned = e.target.checked; save(); refreshRoomList(); };
+  $('#rowner').onchange = e=>{
+    const p = personById(curList(), e.target.value); if(!p) return;
+    room.owner = p.id;
+    adminPersonId = p.id;          /* 옮긴 인물의 목록으로 따라간다 */
+    save(); editRoom(rid); toast('“' + p.name + '”에게 옮겼습니다');
   };
-  $('#addPartNew').onclick = ()=>{
-    const v = $('#newPart').value.trim(); if(!v) return;
-    const L = curList();
-    let p = personByName(L, v);
-    if(!p){ p = {id:personId(v), name:v}; peopleOf(L).push(p); }
-    if(inRoom(room, p.name)){ toast('이미 들어 있습니다'); return; }
-    room.participants.push({id:id(), name:p.name, pinned:false});
-    save(); editRoom(rid);
-  };
-  const box = $('#partList');
-  if(!room.participants.length) box.innerHTML = '<div class="hint" style="margin:0 0 6px;color:#d63a2f">아무에게도 보이지 않습니다. 아래에서 사람을 넣으세요.</div>';
-  room.participants.forEach(p=>{
-    const row = document.createElement('div');
-    row.className = 'part-row';
-    const isMeP = personByName(curList(), p.name) && personByName(curList(), p.name).id === meId();
-    row.innerHTML = `
-      <span class="pn">${esc(p.name)} ${isMeP?'<span class="me-tag">이 기기의 나</span>':''}</span>
-      <label class="chk" style="font-size:12.5px"><input type="checkbox" data-a="pin" ${p.pinned?'checked':''}> 📌고정</label>
-      <button class="btn btn-danger btn-sm" data-a="del">빼기</button>`;
-    row.querySelector('[data-a="pin"]').onchange = e=>{ p.pinned = e.target.checked; save(); refreshRoomList(); };
-    row.querySelector('[data-a="del"]').onclick = ()=>{
-      room.participants = room.participants.filter(x=>x !== p);
-      save(); editRoom(rid);
-    };
-    box.appendChild(row);
-  });
   renderRoomMessages(room);
 }
 /* 채팅 목록 칸의 제목 표시만 새로 고친다 (편집 중인 칸의 커서는 유지) */
@@ -2026,7 +2090,9 @@ function renderRoomMessages(room){
     <div class="admin-section">
       <h3>대화 내용</h3>
       <div class="hint" style="margin-top:0">오른쪽 회색 말풍선 = <b>질문(사용자)</b>, 왼쪽 글 = <b>ChatGPT 답변</b>.<br>
-        답변에는 간단한 서식을 쓸 수 있습니다: <b>**굵게**</b>, <b>## 제목</b>, <b>- 목록</b>, <b>1. 번호 목록</b>, <b>&gt; 인용</b>, <b>\`\`\`</b> 코드 블록, <b>---</b> 구분선</div>
+        답변에서 글자를 고르고 <b>Ctrl+B</b>(또는 <b>B</b> 버튼)를 누르면 굵게 됩니다. 한 번 더 누르면 풀립니다.<br>
+        왼쪽 <b>세로줄</b>을 붙이려면 그 줄들을 고르고 <b>Ctrl+Q</b>(또는 <b>┃</b> 버튼). 😀 버튼으로 이모지를 넣습니다.<br>
+        그 밖의 서식: <b>**굵게**</b>, <b>## 제목</b>, <b>- 목록</b>, <b>1. 번호 목록</b>, <b>&gt; 인용</b>, <b>\`\`\`</b> 코드 블록, <b>---</b> 구분선</div>
       <div id="msgList"></div>
       <div class="add-row">
         <button class="btn btn-ghost" id="addAi">＋ ChatGPT 답변</button>
@@ -2065,6 +2131,96 @@ function resizeImageFit(file, maxW, cb){
   reader.readAsDataURL(file);
 }
 
+/* 답변 입력칸에서 고른 글자를 **굵게** 감싸거나 푼다.
+   여러 줄을 고르면 줄마다 따로 감싼다 (굵게는 한 줄 안에서만 적용되므로).
+   Ctrl+Z 로 되돌릴 수 있도록 가능하면 브라우저의 입력 명령으로 바꾼다. */
+function toggleBold(ta){
+  const v = ta.value;
+  let s = ta.selectionStart, e = ta.selectionEnd;
+  let repl, selA, selB;
+  if(s === e){
+    /* 고른 글자가 없으면 커서가 있는 단어 전체를 대상으로 */
+    while(s > 0 && !/\s/.test(v[s-1])) s--;
+    while(e < v.length && !/\s/.test(v[e])) e++;
+  }
+  /* 앞뒤 공백은 밖으로 뺀다 (**글자 ** 처럼 되면 굵게가 안 먹는다) */
+  while(s < e && /\s/.test(v[s])) s++;
+  while(e > s && /\s/.test(v[e-1])) e--;
+  if(s === e){
+    repl = '****'; s = e = ta.selectionStart;
+    selA = s + 2; selB = s + 2;
+  } else if(v.slice(s-2, s) === '**' && v.slice(e, e+2) === '**'){
+    /* 이미 굵게 — 바깥의 ** 를 지운다 */
+    s -= 2; e += 2;
+    repl = v.slice(s+2, e-2);
+    selA = s; selB = s + repl.length;
+  } else {
+    const inner = v.slice(s, e);
+    if(/^\*\*[\s\S]+\*\*$/.test(inner) && !/\n/.test(inner)){
+      repl = inner.slice(2, -2);
+    } else {
+      repl = inner.split('\n').map(line=>{
+        const m = line.match(/^(\s*(?:[-*•]\s+|\d+[.)]\s+|#{1,4}\s+|>\s?)?)(.*?)(\s*)$/);
+        if(!m || !m[2]) return line;
+        if(/^\*\*.*\*\*$/.test(m[2])) return m[1] + m[2].slice(2, -2) + m[3];
+        return m[1] + '**' + m[2] + '**' + m[3];
+      }).join('\n');
+    }
+    selA = s; selB = s + repl.length;
+  }
+  ta.focus();
+  ta.setSelectionRange(s, e);
+  let ok = false;
+  try{ ok = document.execCommand('insertText', false, repl); }catch(err){ ok = false; }
+  if(!ok || ta.value.slice(s, s + repl.length) !== repl){
+    ta.setRangeText(repl, s, e, 'end');
+    ta.dispatchEvent(new Event('input'));
+  }
+  ta.setSelectionRange(selA, selB);
+}
+
+/* 세로줄(인용): 커서가 있는 줄 또는 고른 줄들 앞에 “> ”를 붙이거나 뗀다 */
+function toggleQuote(ta){
+  const v = ta.value;
+  let s = ta.selectionStart, e = ta.selectionEnd;
+  if(e > s && v[e-1] === '\n') e--;
+  s = v.lastIndexOf('\n', s - 1) + 1;
+  const nl = v.indexOf('\n', e);
+  e = (nl < 0) ? v.length : nl;
+  const lines = v.slice(s, e).split('\n');
+  const allQ = lines.filter(l=>l.trim()).every(l=>/^\s*>/.test(l));
+  const repl = lines.map(l=>{
+    if(allQ) return l.replace(/^(\s*)>\s?/, '$1');
+    return (l.trim() && !/^\s*>/.test(l)) ? '> ' + l : l;
+  }).join('\n');
+  ta.focus();
+  ta.setSelectionRange(s, e);
+  let ok = false;
+  try{ ok = document.execCommand('insertText', false, repl); }catch(err){ ok = false; }
+  if(!ok || ta.value.slice(s, s + repl.length) !== repl){
+    ta.setRangeText(repl, s, e, 'end');
+    ta.dispatchEvent(new Event('input'));
+  }
+  ta.setSelectionRange(s, s + repl.length);
+}
+
+/* ChatGPT 답변에 자주 나오는 이모지 */
+const EMOJIS = ['❌','✅','⚠️','🚫','👉','💡','📌','🔐','🔒','🔑','🎥','📱','💻','🔍','✨','📝',
+  '💬','❗','❓','⭐','🔥','👍','🙏','😊','😅','🤔','📍','🧠','🛑','⏰','📞','💰',
+  '🏠','🚗','📷','📅','📊','🎯','✔️','➡️','👇','1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','💊','🩺'];
+function insertAtCursor(ta, text){
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  ta.focus();
+  ta.setSelectionRange(s, e);
+  let ok = false;
+  try{ ok = document.execCommand('insertText', false, text); }catch(err){ ok = false; }
+  if(!ok || ta.value.slice(s, s + text.length) !== text){
+    ta.setRangeText(text, s, e, 'end');
+    ta.dispatchEvent(new Event('input'));
+  }
+  ta.setSelectionRange(s + text.length, s + text.length);
+}
+
 function renderMsgEditors(room){
   const box = $('#msgList'); box.innerHTML = '';
   if(!room.messages.length) box.innerHTML = `<div class="hint">메시지가 없습니다. 아래 버튼으로 추가하세요.</div>`;
@@ -2079,8 +2235,12 @@ function renderMsgEditors(room){
           <option value="user" ${!ai?'selected':''}>질문 (사용자)</option>
           <option value="assistant" ${ai?'selected':''}>ChatGPT 답변</option>
         </select>
-        ${ai ? `<input data-f="think" style="flex:1;min-width:0" placeholder="(선택) 위에 작은 글씨 — 예: 12초 동안 생각함" value="${esc(msg.think||'')}">` : ''}
+        ${ai ? `<input data-f="think" style="flex:1;min-width:0" placeholder="(선택) 위에 작은 글씨 — 예: 12초 동안 생각함" value="${esc(msg.think||'')}">
+          <button class="btn btn-ghost btn-sm" data-a="bold" title="굵게 (Ctrl+B)" style="font-weight:800;min-width:34px">B</button>
+          <button class="btn btn-ghost btn-sm" data-a="quote" title="세로줄 인용 (Ctrl+Q)" style="min-width:34px;font-weight:800">┃</button>` : '<span style="flex:1"></span>'}
+        <button class="btn btn-ghost btn-sm" data-a="emo" title="이모지 넣기" style="min-width:34px">😀</button>
       </div>
+      <div class="emo-pal">${EMOJIS.map(c=>`<span data-emo="${c}">${c}</span>`).join('')}</div>
       <textarea data-f="text" placeholder="${ai ? '답변 내용' : '질문 내용'}">${esc(msg.text||'')}</textarea>
       <div class="er4">
         ${msg.image?`<div class="er-pv"><img src="${msg.image}"></div>`:''}
@@ -2099,6 +2259,32 @@ function renderMsgEditors(room){
     const fit = ()=>{ ta.style.height = 'auto'; ta.style.height = Math.min(600, Math.max(ai?120:60, ta.scrollHeight + 2)) + 'px'; };
     ta.oninput = e=>{ msg.text = e.target.value; save(); fit(); };
     setTimeout(fit, 0);
+    if(ai){
+      /* 굵게: 글자를 고르고 Ctrl+B (맥은 ⌘+B) 또는 B 버튼. 한 번 더 누르면 풀린다 */
+      ta.addEventListener('keydown', e=>{
+        if((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && (e.key === 'b' || e.key === 'B' || e.code === 'KeyB')){
+          e.preventDefault(); toggleBold(ta);
+        }
+        if((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && (e.key === 'q' || e.key === 'Q' || e.code === 'KeyQ')){
+          e.preventDefault(); toggleQuote(ta);
+        }
+      });
+      const qb = ed.querySelector('[data-a="quote"]');
+      qb.onmousedown = e=> e.preventDefault();
+      qb.onclick = ()=> toggleQuote(ta);
+      const bb = ed.querySelector('[data-a="bold"]');
+      bb.onmousedown = e=> e.preventDefault();      /* 버튼을 눌러도 고른 글자가 풀리지 않게 */
+      bb.onclick = ()=> toggleBold(ta);
+    }
+    /* 이모지: 커서 자리에 넣는다. 팔레트는 버튼으로 열고 닫는다 */
+    const pal = ed.querySelector('.emo-pal');
+    const eb = ed.querySelector('[data-a="emo"]');
+    eb.onmousedown = e=> e.preventDefault();
+    eb.onclick = ()=> pal.classList.toggle('show');
+    pal.querySelectorAll('[data-emo]').forEach(sp=>{
+      sp.onmousedown = e=> e.preventDefault();
+      sp.onclick = ()=> insertAtCursor(ta, sp.dataset.emo);
+    });
     const fileInput = ed.querySelector('[data-a="file"]');
     ed.querySelector('[data-a="photo"]').onclick = ()=> fileInput.click();
     fileInput.onchange = e=>{
@@ -2343,4 +2529,5 @@ setTimeout(function once(){
   checkForUpdate(false);
 }, 1500);
 </script>
+
 </body></html>
