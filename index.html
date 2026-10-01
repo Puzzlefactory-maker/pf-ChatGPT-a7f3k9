@@ -1,0 +1,2346 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" id="appleTitle" content="ChatGPT">
+<meta name="theme-color" content="#f9f9f9">
+<link rel="apple-touch-icon" href="./icons/icon-512.png">
+<link rel="icon" type="image/png" href="./icons/icon-192.png">
+<link id="manifestLink" rel="manifest" href="./manifest.webmanifest">
+<title>ChatGPT</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  #phone { -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
+  #phone input, #phone textarea, #phone select, #phone #diagOut, #phone .kv { -webkit-user-select:text; user-select:text; }
+  #phone img { -webkit-user-drag:none; -webkit-touch-callout:none; }
+  html,body { height:100%; overscroll-behavior:none; }
+  body { font-family: -apple-system, "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", "맑은 고딕", Roboto, sans-serif;
+    background:#333; display:flex; justify-content:center; align-items:center; overflow:hidden; color:#0d0d0d; }
+
+  #phone { --safe-b:0px; width:100%; max-width:430px; height:100vh; height:100dvh; max-height:930px;
+    position:relative; overflow:hidden; background:#f9f9f9; box-shadow:0 0 40px rgba(0,0,0,.4); }
+
+  /* ================= 손님 화면: 메인 ================= */
+  #home { position:absolute; inset:0; display:flex; flex-direction:column;
+    background:
+      radial-gradient(420px 320px at 12% 8%, #ffffff 0%, rgba(255,255,255,0) 70%),
+      radial-gradient(420px 320px at 90% 10%, #ffffff 0%, rgba(255,255,255,0) 70%),
+      radial-gradient(520px 260px at 50% 100%, #f1f1f1 0%, rgba(241,241,241,0) 75%),
+      #f9f9f9; }
+  .g-top { flex-shrink:0; display:flex; align-items:center; justify-content:space-between; padding:14px 13px 8px; }
+  .rbtn { width:42px; height:42px; border-radius:50%; background:#fff; border:none; color:#111; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; box-shadow:0 1px 8px rgba(0,0,0,.035); flex-shrink:0; }
+  .rbtn svg { width:22px; height:22px; display:block; }
+  .seg { display:flex; background:#e8e8e8; border-radius:999px; padding:4px; height:44px; }
+  .seg div { min-width:77px; padding:0 20px; display:flex; align-items:center; justify-content:center;
+    border-radius:999px; font-size:15.5px; color:#1a1a1a; cursor:pointer; letter-spacing:-.1px; }
+  .seg div.on { background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.07); }
+
+  #thread { flex:1; min-height:0; overflow-y:auto; padding:10px 20px 18px; -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain; scrollbar-width:none; }
+  #thread::-webkit-scrollbar { display:none; }
+  .g-suggest { flex-shrink:0; display:flex; align-items:center; gap:18px; padding:0 30px 26px 28px;
+    font-size:16px; color:#2b2b2b; letter-spacing:-.2px; }
+  .g-suggest .emo { font-size:24px; line-height:1; width:22px; text-align:center; }
+  .g-compose { flex-shrink:0; margin:0 32px calc(22px + env(safe-area-inset-bottom, 0px) + var(--safe-b));
+    height:48px; background:#fff; border-radius:999px; display:flex; align-items:center; gap:12px;
+    padding:0 7px 0 14px; box-shadow:0 2px 14px rgba(0,0,0,.055); }
+  .g-compose .plus svg { width:22px; height:22px; display:block; color:#111; }
+  .g-compose .ph { flex:1; min-width:0; font-size:15.5px; color:#8e8e8e; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .g-compose .mic svg { width:22px; height:22px; display:block; color:#111; }
+  .g-compose .voice { width:34px; height:34px; border-radius:50%; background:#2d66ea; color:#fff;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .g-compose .voice svg { width:18px; height:18px; display:block; }
+
+  /* 대화 내용 */
+  .m-user { display:flex; flex-direction:column; align-items:flex-end; margin:16px 0 10px; }
+  .m-user .b { max-width:82%; background:#ececec; border-radius:22px; padding:10px 16px;
+    font-size:16px; line-height:1.5; white-space:pre-wrap; word-break:break-word; }
+  .m-img { max-width:64%; border-radius:18px; overflow:hidden; margin-bottom:6px; line-height:0; background:#e5e5e5; cursor:pointer; }
+  .m-img img { display:block; max-width:100%; max-height:280px; }
+  .m-ai { margin:14px 0 4px; font-size:16px; line-height:1.68; color:#0d0d0d; word-break:break-word; letter-spacing:-.1px; }
+  .m-ai .m-img { max-width:100%; margin:4px 0 10px; }
+  .m-ai p { margin:0 0 12px; }
+  .m-ai p:last-child { margin-bottom:0; }
+  .m-ai h2 { font-size:19px; font-weight:700; margin:18px 0 8px; line-height:1.4; }
+  .m-ai h3 { font-size:17px; font-weight:700; margin:16px 0 6px; line-height:1.4; }
+  .m-ai h4 { font-size:16px; font-weight:700; margin:12px 0 4px; }
+  .m-ai h2:first-child, .m-ai h3:first-child { margin-top:0; }
+  .m-ai ul, .m-ai ol { margin:0 0 12px; padding-left:24px; }
+  .m-ai li { margin:3px 0; }
+  .m-ai strong { font-weight:700; }
+  .m-ai hr { border:none; border-top:1px solid #e3e3e3; margin:18px 0; }
+  .m-ai blockquote { border-left:3px solid #d5d5d5; padding-left:12px; color:#555; margin:0 0 12px; }
+  .m-ai code { background:#ececec; border-radius:5px; padding:1px 5px; font-size:14px; font-family:Menlo, Consolas, monospace; }
+  .md-code { background:#f0f0f0; border-radius:14px; margin:0 0 12px; overflow:hidden; }
+  .md-code-h { font-size:12px; color:#666; padding:8px 14px 0; }
+  .md-code pre { padding:10px 14px 12px; overflow-x:auto; font-size:13.5px; line-height:1.5; font-family:Menlo, Consolas, monospace; white-space:pre; }
+  .m-think { font-size:14px; color:#8a8a8a; margin:14px 0 -6px; }
+  .m-acts { display:flex; gap:16px; color:#7d7d7d; margin:8px 0 22px; }
+  .m-acts svg { width:18px; height:18px; display:block; }
+
+  /* ================= 손님 화면: 사이드바 ================= */
+  #drawer { position:absolute; inset:0; z-index:30; pointer-events:none; }
+  #drawer .scrim { position:absolute; inset:0; background:rgba(0,0,0,.47); opacity:0; transition:opacity .25s; }
+  #drawer .panel { position:absolute; top:0; bottom:0; left:0; width:80%; max-width:360px;
+    background:
+      radial-gradient(300px 300px at 85% 6%, rgba(242,242,242,.9) 0%, rgba(255,255,255,0) 70%),
+      #fff;
+    transform:translateX(-102%); transition:transform .28s cubic-bezier(.2,.8,.2,1);
+    display:flex; flex-direction:column; }
+  #drawer.open { pointer-events:auto; }
+  #drawer.open .scrim { opacity:1; }
+  #drawer.open .panel { transform:none; }
+  .dr-head { flex-shrink:0; display:flex; align-items:center; justify-content:space-between; padding:14px 22px 10px 30px; }
+  .dr-title { font-size:27px; font-weight:800; letter-spacing:-.4px; color:#0d0d0d; }
+  .dr-scroll { flex:1; min-height:0; overflow-y:auto; padding:10px 0 130px; scrollbar-width:none; }
+  .dr-scroll::-webkit-scrollbar { display:none; }
+  .dr-it { display:flex; align-items:center; gap:14px; padding:0 30px; height:45px; font-size:16.5px;
+    font-weight:600; color:#0d0d0d; cursor:pointer; letter-spacing:-.2px; }
+  .dr-it svg { width:22px; height:22px; flex-shrink:0; display:block; }
+  .dr-sec { font-size:15px; font-weight:700; padding:30px 30px 8px; color:#0d0d0d; }
+  .dr-chat { display:flex; align-items:center; gap:14px; margin:0 12px; padding:0 18px; height:45px; font-size:16px;
+    color:#0d0d0d; cursor:pointer; border-radius:12px; letter-spacing:-.2px; }
+  .dr-chat span { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+  .dr-chat svg { width:22px; height:22px; flex-shrink:0; display:block; }
+  .dr-chat.cur { background:#f0f0f0; }
+  .dr-empty { padding:20px 30px; font-size:13px; color:#9a9a9a; line-height:1.6; }
+  .dr-foot { position:absolute; left:0; right:0; bottom:0; display:flex; align-items:center; justify-content:space-between;
+    padding:40px 22px calc(18px + env(safe-area-inset-bottom, 0px) + var(--safe-b)) 30px; pointer-events:none;
+    background:linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,.92) 45%, #fff 100%); }
+  .dr-foot > * { pointer-events:auto; }
+  .dr-new { height:46px; border-radius:999px; background:#2d66ea; color:#fff; border:none; cursor:pointer;
+    display:flex; align-items:center; gap:10px; padding:0 26px 0 20px; font-size:17px; font-weight:600; font-family:inherit;
+    box-shadow:0 4px 14px rgba(45,102,234,.25); }
+  .dr-new svg { width:22px; height:22px; display:block; }
+  .dr-gear { width:46px; height:46px; box-shadow:0 2px 12px rgba(0,0,0,.08); }
+
+  /* 사진 크게 보기 */
+  #photoViewer { display:none; position:absolute; inset:0; z-index:200; background:#000; align-items:center; justify-content:center; }
+  #photoViewer.show { display:flex; }
+  #photoViewer img { max-width:100%; max-height:100%; object-fit:contain; }
+  #photoViewer .pv-close { position:absolute; top:14px; right:14px; width:38px; height:38px; border-radius:50%; border:none;
+    background:rgba(255,255,255,.18); color:#fff; font-size:18px; cursor:pointer; }
+
+  /* 이 폰을 쓸 지점 고르기 */
+  #pickBranch { position:absolute; inset:0; z-index:70; background:#f3f3f3; display:none; align-items:center; justify-content:center; padding:22px; }
+  #pickBranch.show { display:flex; }
+  .bp-card { width:100%; max-width:360px; max-height:100%; overflow:auto; background:#fff; border-radius:20px; padding:22px 16px; box-shadow:0 10px 30px rgba(0,0,0,.08); }
+  .bp-logo { width:56px; height:56px; margin:0 auto 12px; border-radius:18px; background:#0d0d0d; display:flex; align-items:center; justify-content:center; }
+  .bp-logo svg { width:32px; height:32px; }
+  .bp-title { font-size:17px; font-weight:800; text-align:center; }
+  .bp-sub { font-size:12px; color:#8a8a8a; text-align:center; margin:6px 0 16px; line-height:1.55; }
+  .bp-row { display:flex; align-items:center; gap:10px; padding:13px 12px; border-radius:12px; cursor:pointer; border:1px solid #e5e5e5; margin-bottom:8px; }
+  .bp-row:hover { background:#f5f8ff; border-color:#2d66ea; }
+  .bp-name { font-size:15.5px; font-weight:700; flex:1; min-width:0; }
+  .bp-cnt { font-size:12px; color:#8a8a8a; font-weight:500; }
+  .bp-go { font-size:12px; color:#2d66ea; font-weight:700; white-space:nowrap; }
+  .bp-foot { font-size:11px; color:#aaa; text-align:center; margin-top:12px; line-height:1.5; }
+
+  .empty { padding:60px 20px; text-align:center; color:#9a9a9a; font-size:14px; line-height:1.7; }
+
+  /* ================= 관리자 패널 ================= */
+  #adminOverlay { display:none; position:absolute; inset:0; background:#f4f5f7; z-index:50; flex-direction:column; }
+  #adminOverlay.active { display:flex; }
+  .admin-header { background:#202123; color:#fff; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+  .admin-header h2 { font-size:17px; font-weight:700; }
+  .admin-header button { background:rgba(255,255,255,.15); color:#fff; border:none; padding:8px 14px; border-radius:8px; font-size:14px; cursor:pointer; font-weight:600; }
+  .admin-body { flex:1; overflow-y:auto; padding:16px; }
+  #adminBody:not(.room-open) #paneRoom, #adminBody:not(.room-open) #paneMsgs { display:none; }
+  #adminBody.room-open #paneHome { display:none; }
+  .pane-empty { color:#98a5b2; font-size:13px; text-align:center; padding:40px 16px; }
+
+  @media (min-width:1000px) and (pointer:fine){
+    #phone { max-width:none; max-height:none; width:100vw; height:100vh; box-shadow:none; background:#e9edf0; }
+    #home, #drawer { max-width:430px; left:50%; transform:translateX(-50%); right:auto; width:100%; }
+    #drawer .panel { width:80%; }
+    .admin-body { display:flex; gap:14px; align-items:stretch; overflow:hidden; padding:14px; }
+    .apane { overflow-y:auto; min-width:0; padding-right:2px; }
+    #paneHome { flex:0 0 330px; }
+    #paneRoom { flex:0 0 360px; }
+    #paneMsgs { flex:1 1 auto; }
+    #adminBody:not(.room-open) #paneRoom, #adminBody:not(.room-open) #paneMsgs, #adminBody.room-open #paneHome { display:block; }
+    #backToRooms { display:none; }
+    .msg-editor { max-width:88%; }
+    .msg-editor.mine { margin-left:auto; }
+  }
+
+  .admin-section { background:#fff; border-radius:12px; padding:16px; margin-bottom:14px; }
+  .admin-section h3 { font-size:14px; color:#2a3a4a; margin-bottom:12px; font-weight:700; display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .field { margin-bottom:12px; }
+  .field label { display:block; font-size:12.5px; color:#6a7a8a; margin-bottom:5px; font-weight:600; }
+  .field input, .field textarea, .field select { width:100%; border:1px solid #d5dae0; border-radius:8px; padding:9px 11px; font-size:14px; font-family:inherit; background:#fff; }
+  .field textarea { resize:vertical; min-height:56px; }
+  .field.inline { display:flex; gap:8px; align-items:flex-end; }
+  .field.inline > div { flex:1; }
+  .chk { display:flex !important; align-items:center; gap:8px; cursor:pointer; }
+  .chk input { width:auto !important; }
+  .btn { border:none; border-radius:8px; padding:10px 14px; font-size:14px; cursor:pointer; font-weight:600; white-space:nowrap; flex-shrink:0; font-family:inherit; }
+  .btn:disabled { opacity:.45; cursor:default; }
+  .btn-primary { background:#202123; color:#fff; }
+  .btn-blue { background:#2d66ea; color:#fff; }
+  .btn-ghost { background:#eef0f3; color:#2a3a4a; }
+  .btn-danger { background:#ffe5e3; color:#d63a2f; }
+  .btn-sm { padding:6px 10px; font-size:12.5px; }
+  .btn-block { width:100%; margin-top:6px; }
+  .row-actions { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+  .admin-list-item { border:1px solid #e3e7ec; border-radius:10px; padding:11px 12px; margin-bottom:9px; background:#fff; }
+  .admin-list-item.on { border-color:#202123; background:#f7f9fb; }
+  .admin-list-item.picked { border-color:#2d66ea; background:#f3f7ff; box-shadow:0 0 0 2px #2d66ea22 inset; }
+  .sortable .admin-list-item { touch-action:manipulation; }
+  .admin-list-item.dragging { opacity:.92; box-shadow:0 8px 20px rgba(0,0,0,.18); border-color:#202123; position:relative; z-index:5; }
+  .drag-hint { font-size:11.5px; color:#98a5b2; margin:0 0 8px; }
+  .crumb { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+  .crumb-txt { font-size:13px; font-weight:700; color:#2a3a4a; word-break:break-all; }
+  .crumb-txt .sep { color:#a8b4c0; font-weight:400; margin:0 3px; }
+  .node-name { font-weight:700; font-size:14.5px; color:#2a3a4a; cursor:pointer; }
+  .node-name .pen { font-size:11px; color:#a8b4c0; margin-left:4px; }
+  .admin-list-item .top { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .rname { font-weight:700; font-size:14.5px; color:#2a3a4a; word-break:break-all; }
+  .rsub { font-size:12px; color:#8a97a5; margin-top:2px; word-break:break-all; }
+  .me-tag { background:#2d66ea; color:#fff; font-size:10.5px; font-weight:700; padding:2px 6px; border-radius:6px; }
+  .admin-section h3.foldable { cursor:pointer; user-select:none; }
+  .fold-arrow { font-size:11px; color:#8a97a5; }
+  .admin-section.folded .fold-body { display:none; }
+  .part-row { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid #f0f2f5; flex-wrap:wrap; }
+  .part-row:last-child { border-bottom:none; }
+  .part-row .pn { font-weight:700; font-size:14px; flex:1; min-width:80px; }
+
+  .msg-editor { border:1px solid #e3e7ec; border-radius:10px; padding:10px; margin-bottom:9px; background:#fafbfc; }
+  .msg-editor.mine { background:#f2f2f2; border-color:#dcdcdc; }
+  .msg-editor .who { font-size:11.5px; font-weight:700; color:#10a37f; margin-bottom:6px; }
+  .msg-editor.mine .who { color:#6a6a6a; text-align:right; }
+  .msg-editor .er1 { display:flex; gap:8px; margin-bottom:8px; align-items:center; }
+  .msg-editor select, .msg-editor input, .msg-editor textarea { border:1px solid #d5dae0; border-radius:8px; padding:7px 9px; font-size:14px; font-family:inherit; background:#fff; }
+  .msg-editor textarea { width:100%; min-height:60px; resize:vertical; line-height:1.5; }
+  .msg-editor.ai textarea { min-height:120px; }
+  .msg-editor .er4 { display:flex; gap:8px; align-items:center; margin-top:8px; flex-wrap:wrap; }
+  .msg-editor .er-pv { width:56px; height:56px; border-radius:8px; overflow:hidden; background:#eef0f3; }
+  .msg-editor .er-pv img { width:100%; height:100%; object-fit:cover; display:block; }
+  .add-row { display:flex; gap:8px; margin-top:12px; justify-content:space-between; }
+
+  .hint { font-size:12px; color:#98a5b2; line-height:1.6; margin-top:8px; }
+  .kv { font-size:12.5px; color:#6a7a8a; line-height:1.8; word-break:break-all; }
+  .kv b { color:#2a3a4a; }
+  .mode-pill { position:absolute; top:4px; left:50%; transform:translateX(-50%); z-index:40; background:rgba(0,0,0,.35); color:#fff; font-size:10.5px; padding:2px 9px; border-radius:10px; display:none; pointer-events:none; }
+  .mode-pill.show { display:block; }
+  .toast { position:absolute; bottom:90px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,.8); color:#fff; padding:10px 18px; border-radius:20px; font-size:13px; z-index:220; opacity:0; transition:opacity .25s; pointer-events:none; max-width:80%; text-align:center; }
+  .toast.show { opacity:1; }
+  #confirmBox { display:none; position:absolute; inset:0; z-index:240; background:rgba(0,0,0,.4); align-items:center; justify-content:center; padding:30px; }
+  #confirmBox.show { display:flex; }
+  .confirm-card { background:#fff; border-radius:14px; padding:22px 20px 16px; width:100%; max-width:300px; box-shadow:0 10px 40px rgba(0,0,0,.3); }
+  .confirm-msg { font-size:15px; color:#2a3a4a; line-height:1.5; margin-bottom:18px; text-align:center; white-space:pre-wrap; }
+  .confirm-actions { display:flex; gap:8px; }
+  .confirm-actions .btn { flex:1; padding:11px; }
+</style>
+</head>
+<body>
+<div id="phone" style="--safe-b: 0px;">
+  <div class="mode-pill" id="modePill">관리자 모드</div>
+
+  <!-- 메인 화면 -->
+  <div id="home">
+    <div class="g-top">
+      <button class="rbtn" id="btnMenu" title="메뉴">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3.5 8.5h16"/><path d="M3.5 15.5h10"/></svg>
+      </button>
+      <div class="seg" id="seg"><div class="on" id="segA">Chat</div><div id="segB">Work</div></div>
+      <button class="rbtn" id="btnNew" title="새 채팅">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.2 19.2A8.3 8.3 0 1 0 4.1 15.4"/><path d="M4.1 15.4 3.6 20.4l3.6-1.2"/></svg>
+      </button>
+    </div>
+    <div id="thread"></div>
+    <div class="g-suggest" id="suggest"></div>
+    <div class="g-compose">
+      <span class="plus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 4v16M4 12h16"/></svg></span>
+      <span class="ph" id="phText">ChatGPT에게 물어보세요</span>
+      <span class="mic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg></span>
+      <span class="voice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 10v4M10 7v10M14 9v6M18 11v2"/></svg></span>
+    </div>
+  </div>
+
+  <!-- 사이드바 -->
+  <div id="drawer">
+    <div class="scrim" id="drScrim"></div>
+    <div class="panel" id="drPanel">
+      <div class="dr-head">
+        <div class="dr-title" id="drTitle">ChatGPT</div>
+        <button class="rbtn" title="검색"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="10.8" cy="10.8" r="6.8"/><path d="M20 20l-4.3-4.3"/></svg></button>
+      </div>
+      <div class="dr-scroll" id="drScroll">
+        <div id="drMenu">
+          <div class="dr-it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><rect x="3.2" y="6.8" width="12" height="13" rx="2.6" transform="rotate(-10 9.2 13.3)"/><path d="M9.5 4.6l8.4-1.2a2.4 2.4 0 0 1 2.7 2l1 7.4a2.4 2.4 0 0 1-2 2.7l-1.4.2"/><circle cx="8.3" cy="11.3" r="1.3"/><path d="M4.8 18.3l4-3.5 3 2.4 2-1.6"/></svg>이미지</div>
+          <div class="dr-it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><rect x="3" y="4" width="4.6" height="16" rx="1.4"/><rect x="9.2" y="4" width="4.6" height="16" rx="1.4"/><path d="M15.6 5.2l3.3-.9 2.6 15-3.3.8z"/></svg>라이브러리</div>
+          <div class="dr-it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5h3.8l2 2.2h7.2A2.5 2.5 0 0 1 21 9.7v8A2.5 2.5 0 0 1 18.5 20h-13A2.5 2.5 0 0 1 3 17.5z"/><path d="M3 11h18"/></svg>프로젝트</div>
+          <div class="dr-it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round"><rect x="5" y="3" width="14" height="10" rx="2"/><path d="M3.5 16h17"/><path d="M4 20h.01M8 20h.01M12 20h.01M16 20h.01M20 20h.01M12 18.2h.01" stroke-width="2.4"/></svg>Remote</div>
+          <div class="dr-it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="8.8"/><path d="M12 7v5l-2.5 3"/></svg>예약</div>
+          <div class="dr-it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="8.8"/><path d="M16.2 12a4.2 4.2 0 1 0-1.3 3"/><path d="M15 9.2c0 3 .2 5.4 2 5.4 1.5 0 2.2-1.6 1.9-3.6"/></svg>플러그인</div>
+        </div>
+        <div id="drList"></div>
+      </div>
+      <div class="dr-foot">
+        <button class="dr-new" id="drNew"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H6.5A2.5 2.5 0 0 0 4 6.5v11A2.5 2.5 0 0 0 6.5 20h11a2.5 2.5 0 0 0 2.5-2.5V13"/><path d="M17.6 3.6a2 2 0 0 1 2.8 2.8L12 14.8l-3.6.8.8-3.6z"/></svg><span id="drNewText">Chat</span></button>
+        <button class="rbtn dr-gear" id="btnAdmin" title="설정"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.1"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 이 폰을 쓸 지점 고르기 -->
+  <div id="pickBranch">
+    <div class="bp-card">
+      <div class="bp-logo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7"><ellipse cx="12" cy="12" rx="3" ry="8"/><ellipse cx="12" cy="12" rx="3" ry="8" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="3" ry="8" transform="rotate(120 12 12)"/></svg></div>
+      <div class="bp-title">이 폰을 쓸 지점을 고르세요</div>
+      <div class="bp-sub">고른 지점의 내용만 보입니다.<br>이 기기에만 저장되며, 나중에 바꿀 수 없습니다.</div>
+      <div id="branchList"></div>
+      <div class="bp-foot">잘못 골랐다면 주소 끝에 <b>?reset=1</b> 을 붙여 다시 여세요.</div>
+    </div>
+  </div>
+
+  <!-- 사진 크게 보기 -->
+  <div id="photoViewer">
+    <img id="photoViewerImg" alt="">
+    <button class="pv-close" id="photoClose">✕</button>
+  </div>
+
+  <!-- 관리자 패널 -->
+  <div id="adminOverlay">
+    <div class="admin-header">
+      <h2 id="adminTitle">관리자</h2>
+      <div class="row-actions">
+        <button id="adminGuest">손님 모드</button>
+        <button id="adminClose">닫기</button>
+      </div>
+    </div>
+    <div class="admin-body room-open" id="adminBody"><div class="apane" id="paneHome"></div><div class="apane" id="paneRoom"></div><div class="apane" id="paneMsgs"></div></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div id="confirmBox">
+    <div class="confirm-card">
+      <div class="confirm-msg" id="confirmMsg"></div>
+      <div class="confirm-actions">
+        <button class="btn btn-ghost" id="confirmNo">취소</button>
+        <button class="btn btn-danger" id="confirmYes">삭제</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   단서 GPT — 크라임씬용 가짜 ChatGPT
+   - 손님 모드: 대화 기록 확인만 가능
+   - 관리자 모드: 사이드바 제목(“ChatGPT”) 또는 가운데 Chat/Work 를 5초 길게 눌러 진입
+   - 구조는 단서 메신저(카카오톡)와 같다:
+     대분류(지점) › 중분류(테마) = GPT 한 벌, 그 안에 등장인물과 채팅 기록.
+     폰마다 “나”만 고르면 그 사람이 참여자로 들어간 채팅만 사이드바에 보인다.
+   - 데이터 규칙: 파일에 내장된 DATA_VERSION(+지문)이 바뀌면(=새 파일 설치)
+     폰에 저장된 내용을 지우고 파일 내용으로 초기화한다. 같은 버전이면 폰에서 수정한 내용이 우선.
+   ============================================================ */
+
+/*__CS_DATA_START__ 아래 두 줄이 이 파일에 들어있는 대화 내용입니다. */
+const DATA_VERSION = "2026-09-30-000001";
+const EMBEDDED_DATA = {
+ "appName": "ChatGPT",
+ "tree": [
+  { "id": "t1", "name": "강남1호점", "children": [ { "id": "t2", "name": "샘플테마", "lists": ["강남1호점_샘플테마"] } ] }
+ ],
+ "lists": [
+  {
+   "key": "강남1호점_샘플테마",
+   "label": "샘플테마",
+   "startDrawer": false,
+   "bottomPad": 0,
+   "placeholder": "ChatGPT에게 물어보세요",
+   "modeA": "Chat",
+   "modeB": "Work",
+   "suggest": { "show": true, "emoji": "📍", "text": "다산 근처 주말 아이디어" },
+   "people": [ { "name": "김민수" }, { "name": "박지영" } ],
+   "rooms": [
+    {
+     "id": "r1", "title": "AI 자동화 가능 구간",
+     "participants": [ { "id": "rp1", "name": "김민수", "pinned": true } ],
+     "messages": [
+      { "id": "m1", "role": "user", "text": "우리 가게 업무 중에 AI로 자동화할 수 있는 부분 정리해줘", "image": "" },
+      { "id": "m2", "role": "assistant", "text": "좋아요! 매장 운영 기준으로 **자동화하기 쉬운 순서**대로 정리해 볼게요.\n\n## 1. 예약·문의 응대\n- 자주 묻는 질문(영업시간, 주차, 가격) 자동 답변\n- 예약 확인 문자 자동 발송\n\n## 2. 재고·발주\n- 판매 기록을 바탕으로 **부족한 품목 알림**\n- 거래처별 발주서 초안 작성\n\n## 3. 정산\n1. 일별 매출 집계\n2. 카드/현금 대조\n3. 월말 보고서 초안\n\n원하시면 이 중 하나를 골라 **구체적인 방법**을 알려드릴게요.", "image": "" }
+     ]
+    },
+    {
+     "id": "r2", "title": "서명 이미지 제작",
+     "participants": [ { "id": "rp2", "name": "김민수" } ],
+     "messages": [
+      { "id": "m3", "role": "user", "text": "내 이름으로 계약서에 쓸 서명 이미지 만들어줘. 필기체 느낌으로", "image": "" },
+      { "id": "m4", "role": "assistant", "text": "필기체 느낌의 서명 스타일을 몇 가지 제안드릴게요.\n\n- **흘림체형**: 이름 전체를 한 획으로 이어서\n- **이니셜 강조형**: 첫 글자를 크게, 나머지는 작게\n- **밑줄형**: 마지막 획을 길게 빼서 밑줄처럼\n\n어떤 스타일이 좋으세요?", "image": "" }
+     ]
+    },
+    {
+     "id": "r3", "title": "수면제 복용량 문의",
+     "participants": [ { "id": "rp3", "name": "박지영" } ],
+     "messages": [
+      { "id": "m5", "role": "user", "text": "요즘 잠이 안 와서 그런데 처방받은 수면제 두 알 먹어도 돼?", "image": "" },
+      { "id": "m6", "role": "assistant", "text": "잠을 못 주무셔서 많이 힘드시겠어요.\n\n다만 **처방받은 용량보다 더 드시는 건 권하지 않아요.** 수면제는 양을 늘리면 다음 날까지 졸림이 남거나 호흡이 약해질 수 있어요.\n\n- 지금 용량으로 효과가 없다면 **처방한 의사나 약사**와 먼저 상의해 주세요.\n- 술과 함께 드시는 건 특히 위험해요.\n\n혹시 요즘 잠을 못 이룰 만큼 힘든 일이 있으신가요? 이야기 나누고 싶으시면 들을게요.", "image": "" }
+     ]
+    }
+   ]
+  }
+ ]
+};
+/*__CS_DATA_END__*/
+
+const CODE_VERSION = '2026-09-30-G1';
+
+/* 같은 주소(github.io)에 다른 단서 앱(카카오톡·문자 등)이 함께 올라가도
+   서로의 저장분을 건드리지 않도록 이 앱만의 이름을 쓴다 */
+const STORE_KEY = 'danseo_gpt_v1';
+const BRANCH_KEY = 'danseo_gpt_branch';
+const VIEW_KEY = 'danseo_gpt_me';
+const PAD_KEY = 'danseo_gpt_pad';
+const LAST_KEY = 'danseo_gpt_last_list';
+const CACHE_PREFIX = 'danseo-gpt-';
+
+let data = null;
+let listIdx = 0;
+let currentRoomId = null;
+let isAdmin = false;
+let importOpen = false;
+let deferredInstall = null;
+let swState = '확인 중';
+
+/* ---------- 저장 / 불러오기 (버전 도장 방식) ---------- */
+function deepCopy(o){ return JSON.parse(JSON.stringify(o)); }
+const storageOK = (function(){
+  try { localStorage.setItem('__dg_t','1'); localStorage.removeItem('__dg_t'); return true; }
+  catch(e){ return false; }
+})();
+
+/* 뒤로가기 처리 */
+let histOK = true;
+function pushView(v){ try { history.pushState({v:v}, ''); } catch(e){ histOK = false; } }
+function drawerOpen(){ return $('#drawer').classList.contains('open'); }
+function closeTop(){
+  if($('#photoViewer').classList.contains('show')){ closePhoto(); return; }
+  if($('#adminOverlay').classList.contains('active')){ closeAdmin(); return; }
+  if(drawerOpen()){ closeDrawer(); return; }
+  if(currentRoomId){ currentRoomId = null; renderThread(); renderDrawer(); return; }
+}
+function goBack(){
+  if(histOK){ history.back(); return; }
+  closeTop();
+}
+
+function isMyCache(k){ return k.indexOf(CACHE_PREFIX) === 0; }
+function appDir(){ try{ return new URL('./', location.href).href; }catch(e){ return location.href; } }
+function isMySW(reg){ return String(reg && reg.scope).indexOf(appDir()) === 0; }
+
+function wipeStored(){
+  idbBox = null;
+  try{ idbClear(); }catch(e){}
+  try{ localStorage.removeItem(STORE_KEY); }catch(e){}
+  try{
+    if(window.caches && caches.keys){
+      caches.keys().then(keys=>keys.forEach(k=>{ if(isMyCache(k) && k.indexOf(DATA_VERSION)===-1) caches.delete(k); }));
+    }
+  }catch(e){}
+}
+
+/* 파일에 들어있는 내용의 지문 — DATA_VERSION 을 안 고치고 내용만 바꿔도 새 파일로 인식 */
+function fingerprint(o){
+  let s;
+  try{ s = JSON.stringify(o); }catch(e){ return 'x'; }
+  let h = 0x811c9dc5;
+  for(let i=0;i<s.length;i++){ h = (h ^ s.charCodeAt(i)) >>> 0; h = (h * 0x01000193) >>> 0; }
+  return h.toString(36) + '-' + s.length.toString(36);
+}
+const DATA_FP = fingerprint(EMBEDDED_DATA);
+
+function storedBox(){
+  if(idbBox) return idbBox;
+  try{ return JSON.parse(localStorage.getItem(STORE_KEY)); }catch(e){ return null; }
+}
+
+/* ---------- 저장소 (IndexedDB 주 저장, localStorage 보조) ---------- */
+const IDB_NAME = 'danseo_gpt';
+const IDB_STORE = 'box';
+const IDB_KEY = 'main';
+let idbState = 'ok';
+let idbBox = null;
+let saveBlocked = false;
+let saveWarned = false;
+let storeKind = 'localStorage';
+
+function idbOpen(){
+  return new Promise((res, rej)=>{
+    if(!self.indexedDB){ idbState = 'unavailable'; return rej(new Error('없음')); }
+    if(location.protocol === 'file:'){ idbState = 'unavailable'; return rej(new Error('파일 직접 열기')); }
+    let settled = false;
+    const finish = (fn, v)=>{ if(!settled){ settled = true; clearTimeout(timer); fn(v); } };
+    const timer = setTimeout(()=>{ if(!settled){ settled = true; idbState = 'unavailable'; rej(new Error('시간 초과')); } }, 2500);
+    let rq;
+    try{ rq = indexedDB.open(IDB_NAME, 1); }
+    catch(e){ idbState = 'unavailable'; return finish(rej, e); }
+    rq.onupgradeneeded = ()=>{ try{ rq.result.createObjectStore(IDB_STORE); }catch(e){} };
+    rq.onsuccess = ()=>{ idbState = 'ok'; finish(res, rq.result); };
+    rq.onerror   = ()=>{ if(idbState !== 'unavailable') idbState = 'error'; finish(rej, rq.error || new Error('열기 실패')); };
+    rq.onblocked = ()=>{ idbState = 'unavailable'; finish(rej, new Error('차단됨')); };
+  });
+}
+function idbRead(){
+  return idbOpen().then(db=> new Promise(res=>{
+    let tx;
+    try{ tx = db.transaction(IDB_STORE, 'readonly'); }
+    catch(e){ return res({ok:false, value:null}); }
+    const rq = tx.objectStore(IDB_STORE).get(IDB_KEY);
+    rq.onsuccess = ()=> res({ok:true, value:rq.result || null});
+    rq.onerror   = ()=> res({ok:false, value:null});
+  })).catch(()=> ({ok:false, value:null}));
+}
+function idbWrite(v){
+  return idbOpen().then(db=> new Promise((res, rej)=>{
+    const tx = db.transaction(IDB_STORE, 'readwrite');
+    tx.objectStore(IDB_STORE).put(v, IDB_KEY);
+    tx.oncomplete = ()=> res(true);
+    tx.onerror    = ()=> rej(tx.error || new Error('저장 실패'));
+    tx.onabort    = ()=> rej(tx.error || new Error('저장 중단'));
+  }));
+}
+function idbClear(){
+  return idbOpen().then(db=> new Promise(res=>{
+    const tx = db.transaction(IDB_STORE, 'readwrite');
+    tx.objectStore(IDB_STORE).delete(IDB_KEY);
+    tx.oncomplete = ()=> res(true);
+    tx.onerror    = ()=> res(false);
+    tx.onabort    = ()=> res(false);
+  })).catch(()=> false);
+}
+let persistState = '확인 중';
+function askPersist(){
+  try{
+    if(!navigator.storage || !navigator.storage.persist){ persistState = '지원 안 함'; return Promise.resolve(); }
+    return (navigator.storage.persisted ? navigator.storage.persisted() : Promise.resolve(false))
+      .then(p=> p ? true : navigator.storage.persist())
+      .then(p=>{ persistState = p ? '켜짐' : '꺼짐'; })
+      .catch(()=>{ persistState = '알 수 없음'; });
+  }catch(e){ persistState = '알 수 없음'; return Promise.resolve(); }
+}
+let quotaText = '확인 중';
+function refreshQuota(){
+  try{
+    if(!navigator.storage || !navigator.storage.estimate){ quotaText = '알 수 없음'; return Promise.resolve(); }
+    return navigator.storage.estimate().then(e=>{
+      const mb = n => (n/1048576).toFixed(n < 104857600 ? 1 : 0) + ' MB';
+      quotaText = mb(e.usage||0) + ' 사용 / ' + mb(e.quota||0) + ' 사용 가능';
+    }).catch(()=>{ quotaText = '알 수 없음'; });
+  }catch(e){ quotaText = '알 수 없음'; return Promise.resolve(); }
+}
+
+let baseFp = null;   /* 파일에서 막 읽어온 상태의 지문 */
+
+function load(){
+  return idbRead().then(got=>{
+    let box = got.value;
+    if(!got.ok && idbState === 'error') saveBlocked = true;
+    storeKind = (idbState === 'ok') ? 'IndexedDB' : 'localStorage';
+    if(!box){ try{ box = JSON.parse(localStorage.getItem(STORE_KEY)); }catch(e){ box = null; } }
+    if(box && box.data && box.version === DATA_VERSION && box.fp === DATA_FP){
+      idbBox = box;
+      baseFp = box.base || null;
+      return normalize(box.data);
+    }
+    if(!saveBlocked) wipeStored();
+    const fresh = normalize(deepCopy(EMBEDDED_DATA));
+    baseFp = fingerprint(fresh);
+    return fresh;
+  });
+}
+function hasLocalEdits(){ return !!baseFp && fingerprint(data) !== baseFp; }
+
+function save(){
+  try{ (data.lists||[]).forEach(ensurePeople); }catch(e){}
+  if(saveBlocked) return true;
+  const box = { version: DATA_VERSION, fp: DATA_FP, base: baseFp, savedAt: new Date().toISOString(), data: data };
+  idbBox = box;
+  idbWrite(box).then(()=>{ saveWarned = false; }).catch(()=>{
+    if(!saveWarned){ saveWarned = true; toast('저장하지 못했습니다. 내보내기로 백업해 주세요.'); }
+  });
+  if(storageOK){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(box)); }catch(e){} }
+  return true;
+}
+function storageKB(){
+  try{ return Math.round(JSON.stringify({version:DATA_VERSION, data:data}).length/1024); }
+  catch(e){ return 0; }
+}
+
+/* ---------- 새 파일 자동 감지 ---------- */
+const MARK_S = '/*__CS' + '_DATA_START__';
+const MARK_E = '/*__CS' + '_DATA_END__*/';
+function readFileData(txt){
+  const i = txt.indexOf(MARK_S), j = txt.indexOf(MARK_E);
+  if(i < 0 || j <= i) return null;
+  try{
+    const block = txt.slice(i, j).replace(MARK_S, '/*');
+    return (new Function(block + '\nreturn { v: DATA_VERSION, d: EMBEDDED_DATA };'))();
+  }catch(e){ return null; }
+}
+function forceUpdate(){
+  const go = ()=> location.replace(listUrl(curList().key));
+  const steps = [];
+  idbBox = null;
+  try{ steps.push(idbClear()); }catch(e){}
+  try{ localStorage.removeItem(STORE_KEY); }catch(e){}
+  try{ if(window.caches && caches.keys) steps.push(caches.keys().then(ks=>Promise.all(ks.filter(isMyCache).map(k=>caches.delete(k))))); }catch(e){}
+  try{
+    if(navigator.serviceWorker && navigator.serviceWorker.getRegistrations){
+      steps.push(navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.filter(isMySW).map(r=>r.unregister()))));
+    }
+  }catch(e){}
+  Promise.all(steps).then(go, go);
+}
+function checkForUpdate(manual){
+  if(location.protocol.indexOf('http') !== 0){
+    if(manual) toast('서버(https 또는 localhost)로 열었을 때만 확인할 수 있습니다');
+    return;
+  }
+  fetch('./index.html?_uc=' + Date.now(), {cache:'no-store'})
+    .then(r=> r.ok ? r.text() : Promise.reject())
+    .then(txt=>{
+      const got = readFileData(txt);
+      if(!got){ if(manual) toast('파일을 확인할 수 없습니다'); return; }
+      const fileFp = fingerprint(got.d);
+      const same = (got.v === DATA_VERSION) && (fileFp === DATA_FP);
+      const info = document.getElementById('updInfo');
+      if(info){
+        const rooms = (got.d.lists||[]).reduce((a,x)=>a+(x.rooms||[]).length,0);
+        const msgs = (got.d.lists||[]).reduce((a,x)=>a+(x.rooms||[]).reduce((b,r)=>b+(r.messages||[]).length,0),0);
+        info.innerHTML = '서버 파일 버전 <b>' + esc(got.v) + '</b> · 지문 <b>' + esc(fileFp) + '</b><br>'
+          + '서버 파일 내용 <b>채팅 ' + rooms + '개 · 메시지 ' + msgs + '개</b><br>'
+          + '판정 <b>' + (same ? '지금 보이는 내용과 같음' : '다름 → 새 내용으로 교체') + '</b>';
+      }
+      if(same){ if(manual) toast('이미 최신 파일입니다'); return; }
+      const tag = got.v + '|' + fileFp;
+      let tried = null;
+      try{ tried = sessionStorage.getItem('dg_upd'); }catch(e){}
+      if(!manual && tried === tag){
+        toast('새 파일이 있는데 적용되지 않았습니다. 관리자 모드에서 “새 파일 확인”을 눌러주세요.');
+        return;
+      }
+      try{ sessionStorage.setItem('dg_upd', tag); }catch(e){}
+      toast('새 파일을 발견했습니다. 새 내용으로 다시 엽니다…');
+      setTimeout(forceUpdate, 700);
+    })
+    .catch(()=>{ if(manual) toast('서버에 연결할 수 없습니다'); });
+}
+
+/* ---------- 데이터 정리 ---------- */
+function listDefaults(L){
+  L.label = (L.label === undefined) ? '' : L.label;
+  L.placeholder = L.placeholder || 'ChatGPT에게 물어보세요';
+  L.modeA = L.modeA || 'Chat';
+  L.modeB = L.modeB || 'Work';
+  L.bottomPad = Math.max(0, Number(L.bottomPad)||0);
+  L.suggest = Object.assign({ show:true, emoji:'📍', text:'' }, L.suggest||{});
+  delete L.autoSort;
+  L.startDrawer = !!L.startDrawer;
+  if(!Array.isArray(L.rooms)) L.rooms = [];
+  if(!Array.isArray(L.people)) L.people = [];
+  return L;
+}
+function normalize(d){
+  if(!d || typeof d !== 'object') d = {};
+  if(!Array.isArray(d.lists)) d.lists = [];
+  if(!d.appName) d.appName = 'ChatGPT';
+  d.lists = d.lists.filter(L=> L && typeof L === 'object');
+  if(!d.lists.length) d.lists = [{ key:'기본', rooms:[], people:[] }];
+  const usedKeys = [];
+  d.lists.forEach((L, i)=>{
+    listDefaults(L);
+    let k = String(L.key || ('목록'+(i+1))).trim() || ('목록'+(i+1));
+    while(usedKeys.indexOf(normKey(k)) !== -1) k = k + '_2';
+    usedKeys.push(normKey(k));
+    L.key = k;
+    L.rooms = L.rooms.filter(r=> r && typeof r === 'object');
+    L.rooms.forEach(room=>{
+      if(!room.id) room.id = id();
+      if(typeof room.title !== 'string') room.title = '새 채팅';
+      delete room.date; delete room.time;
+      if(!Array.isArray(room.participants)) room.participants = [];
+      room.participants = room.participants.filter(p=> p && typeof p === 'object');
+      room.participants.forEach(p=>{ if(!p.id) p.id = id(); p.pinned = !!p.pinned; });
+      if(!Array.isArray(room.messages)) room.messages = [];
+      room.messages = room.messages.filter(m=> m && typeof m === 'object');
+      room.messages.forEach(m=>{
+        if(!m.id) m.id = id();
+        if(m.role !== 'assistant') m.role = 'user';
+        if(m.text === undefined) m.text = '';
+        if(m.image === undefined) m.image = '';
+        if(m.think === undefined) m.think = '';
+      });
+    });
+  });
+  const keep = data;
+  data = d;                 /* ensureTree 안의 도우미들이 data 를 참조한다 */
+  try{ ensureTree(d); }catch(e){}
+  try{ d.lists.forEach(ensurePeople); }catch(e){}
+  data = keep;
+  return d;
+}
+function id(){ return 'x'+Math.random().toString(36).slice(2,9); }
+function normKey(s){ return String(s||'').trim().toLowerCase().replace(/\s+/g,'_'); }
+function curList(){ return data.lists[listIdx] || data.lists[0]; }
+
+/* ---------- 이 폰의 지점 잠금 ---------- */
+let branchLock = null;
+function loadBranch(){
+  try{ const v = JSON.parse(localStorage.getItem(BRANCH_KEY)); branchLock = (v && typeof v === 'object') ? v : null; }
+  catch(e){ branchLock = null; }
+}
+function saveBranch(){
+  try{ if(branchLock) localStorage.setItem(BRANCH_KEY, JSON.stringify(branchLock)); else localStorage.removeItem(BRANCH_KEY); }catch(e){}
+}
+function lockedC1(){
+  if(!branchLock || !data) return null;
+  const byId = (data.tree||[]).find(c=>c.id === branchLock.id);
+  if(byId){ if(branchLock.name !== byId.name){ branchLock.name = byId.name; saveBranch(); } return byId; }
+  const byName = (data.tree||[]).find(c=>c.name === branchLock.name);
+  if(byName){ branchLock = {id:byName.id, name:byName.name}; saveBranch(); return byName; }
+  return null;
+}
+function branchLocked(){ return !wideAdmin() && !!lockedC1(); }
+function setBranch(c1){ branchLock = {id:c1.id, name:c1.name}; saveBranch(); }
+function listAllowed(L){
+  const lk = branchLocked() ? lockedC1() : null;
+  if(!lk || !L) return true;
+  const c = catOfList(L.key);
+  return !!(c && c.c1.id === lk.id);
+}
+function fixListForBranch(){
+  const lk = branchLocked() ? lockedC1() : null;
+  if(!lk || listAllowed(curList())) return;
+  const keys = [];
+  (lk.children||[]).forEach(c2=> (c2.lists||[]).forEach(k=> keys.push(k)));
+  for(const k of keys){ const i = findListIdx(k); if(i >= 0){ listIdx = i; return; } }
+}
+function enforceBranchLock(){
+  const lk = branchLocked() ? lockedC1() : null;
+  if(!lk) return;
+  if(treePath[0] !== lk.id){ treePath = [lk.id]; adminListPicked = false; adminRoomId = ''; }
+}
+function treeMinDepth(){ return branchLocked() ? 1 : 0; }
+
+/* ---------- 인물 · 이 기기에서 볼 “나” ---------- */
+let viewAs = {};
+function loadView(){
+  try{ const v = JSON.parse(localStorage.getItem(VIEW_KEY)); viewAs = (v && typeof v === 'object') ? v : {}; }
+  catch(e){ viewAs = {}; }
+}
+function saveView(){ try{ localStorage.setItem(VIEW_KEY, JSON.stringify(viewAs)); }catch(e){} }
+function personId(name){
+  const s = normKey(name);
+  let h = 0x811c9dc5;
+  for(let i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = (h * 0x01000193) >>> 0; }
+  return 'p' + h.toString(36);
+}
+/* 채팅의 참여자 이름을 모두 인물 명단으로 모은다 */
+function ensurePeople(L){
+  if(!L) return [];
+  if(!Array.isArray(L.people)) L.people = [];
+  for(let i = L.people.length - 1; i >= 0; i--){
+    const p = L.people[i];
+    if(!p || typeof p !== 'object' || !String(p.name||'').trim()) L.people.splice(i, 1);
+  }
+  const byName = {};
+  L.people.forEach(p=>{ if(!p.id) p.id = personId(p.name); byName[normKey(p.name)] = p; });
+  (L.rooms||[]).forEach(r=> (r.participants||[]).forEach(pt=>{
+    const k = normKey(pt.name);
+    if(!k || byName[k]) return;
+    let pid = personId(pt.name), n = 2;
+    while(L.people.some(x=>x.id === pid)){ pid = personId(pt.name) + '_' + (n++); }
+    const p = {id:pid, name:pt.name};
+    byName[k] = p; L.people.push(p);
+  }));
+  return L.people;
+}
+function peopleOf(L){ return ensurePeople(L || curList()); }
+function personById(L, pid){ const ps = (L && L.people) || []; return pid ? (ps.find(p=>p && p.id===pid) || null) : null; }
+function personByName(L, name){ const k = normKey(name); const ps = (L && L.people) || []; return k ? (ps.find(p=>p && normKey(p.name)===k) || null) : null; }
+function meId(){
+  const L = curList(); if(!L) return '';
+  const v = viewAs[L.key];
+  if(!v) return '';
+  const want = (typeof v === 'string') ? {id:v, name:''} : v;
+  const ps = peopleOf(L);
+  let p = want.id ? ps.find(x=>x.id === want.id) : null;
+  if(!p && want.name) p = ps.find(x=>normKey(x.name) === normKey(want.name));
+  if(!p){ delete viewAs[L.key]; saveView(); return ''; }
+  if(typeof v === 'string' || v.id !== p.id || v.name !== p.name){ viewAs[L.key] = {id:p.id, name:p.name}; saveView(); }
+  return p.id;
+}
+function mePerson(){ return personById(curList(), meId()); }
+function setMe(pid){
+  const L = curList(); if(!L) return;
+  const p = pid ? personById(L, pid) : null;
+  if(p) viewAs[L.key] = {id:p.id, name:p.name}; else delete viewAs[L.key];
+  saveView();
+}
+/* 관리자 화면에서는 “나”를 아직 안 골랐어도 첫 인물 기준으로 보여준다 */
+function effMeId(){
+  const m = meId();
+  if(m) return m;
+  if(!isAdmin) return '';
+  const ps = peopleOf(curList());
+  return ps.length ? ps[0].id : '';
+}
+function partEntry(room, name){ const k = normKey(name); return k ? (room.participants||[]).find(p=>normKey(p.name) === k) : null; }
+function inRoom(room, name){ return !!partEntry(room, name); }
+function visibleRooms(L){
+  const me = personById(L, effMeId());
+  if(!me) return [];
+  return (L.rooms||[]).filter(r=> inRoom(r, me.name));
+}
+function roomsOfPerson(L, pid){
+  const p = personById(L, pid);
+  return p ? (L.rooms||[]).filter(r=> inRoom(r, p.name)) : [];
+}
+function roomPinned(room){
+  const me = personById(curList(), effMeId());
+  const e = me ? partEntry(room, me.name) : null;
+  return !!(e && e.pinned);
+}
+/* 인물 이름 바꾸기 — 모든 채팅의 참여자 이름도 함께 */
+function renamePerson(L, p, newName){
+  const nn = String(newName||'').trim();
+  if(!nn || nn === p.name) return false;
+  const dup = peopleOf(L).find(x=> x !== p && normKey(x.name) === normKey(nn));
+  const old = normKey(p.name);
+  (L.rooms||[]).forEach(r=>{
+    (r.participants||[]).forEach(x=>{ if(normKey(x.name) === old) x.name = nn; });
+    const seen = {};
+    r.participants = (r.participants||[]).filter(x=>{ const k = normKey(x.name); if(seen[k]) return false; seen[k] = 1; return true; });
+  });
+  p.name = nn;
+  if(dup){
+    const v = viewAs[L.key];
+    if(v && ((typeof v === 'string' ? v : v.id) === dup.id)) viewAs[L.key] = {id:p.id, name:p.name};
+    L.people = L.people.filter(x=> x !== dup);
+  }
+  const v = viewAs[L.key];
+  if(v && typeof v === 'object' && v.id === p.id){ v.name = p.name; }
+  saveView();
+  return true;
+}
+
+/* ---------- 분류(폴더) 트리 ---------- */
+function sanitizeKey(s){ return String(s||'').trim().replace(/\s+/g,'_').replace(/[?&#%\/\\]/g,''); }
+function makeListKey(c1name, c2name, label, self){
+  const base = [c1name, c2name, label].map(sanitizeKey).filter(Boolean).join('_') || '목록';
+  let k = base, n = 2;
+  while(data.lists.some(L=>L!==self && normKey(L.key)===normKey(k))){ k = base + '_' + n; n++; }
+  return k;
+}
+function listByKey(key){ const n = normKey(key); return data.lists.find(L=>normKey(L.key)===n) || null; }
+function listsOfCat(c2){ return (c2.lists||[]).map(k=>listByKey(k)).filter(Boolean); }
+function catOfList(key){
+  const n = normKey(key);
+  for(const c1 of data.tree){ for(const c2 of c1.children){ if((c2.lists||[]).some(k=>normKey(k)===n)) return { c1:c1, c2:c2 }; } }
+  return null;
+}
+function treeRemoveList(key){
+  const n = normKey(key);
+  data.tree.forEach(c1=>c1.children.forEach(c2=>{ c2.lists = (c2.lists||[]).filter(k=>normKey(k)!==n); }));
+}
+function treeRenameListKey(oldKey, newKey){
+  const n = normKey(oldKey);
+  data.tree.forEach(c1=>c1.children.forEach(c2=>{ c2.lists = (c2.lists||[]).map(k=> normKey(k)===n ? newKey : k); }));
+}
+function countInCat1(c1){
+  let rooms = 0;
+  (c1.children||[]).forEach(c2=> listsOfCat(c2).forEach(L=> rooms += (L.rooms||[]).length));
+  return { subs:(c1.children||[]).length, rooms:rooms };
+}
+/* 중분류 하나에 GPT 한 벌 — 없으면 만들어 준다 */
+function listOfCat(c1, c2){
+  const have = listsOfCat(c2);
+  if(have.length) return have[0];
+  const L = listDefaults({ key: makeListKey(c1.name, c2.name, '', null), label:c2.name, rooms:[], people:[] });
+  data.lists.push(L);
+  c2.lists = [L.key];
+  return L;
+}
+function ensureTree(d){
+  if(!Array.isArray(d.tree)) d.tree = [];
+  d.tree = d.tree.filter(c1=>c1 && typeof c1 === 'object');
+  d.tree.forEach(c1=>{
+    if(!c1.id) c1.id = id();
+    c1.name = String(c1.name || '분류');
+    if(!Array.isArray(c1.children)) c1.children = [];
+    c1.children = c1.children.filter(c2=>c2 && typeof c2 === 'object');
+    c1.children.forEach(c2=>{
+      if(!c2.id) c2.id = id();
+      c2.name = String(c2.name || '분류');
+      if(!Array.isArray(c2.lists)) c2.lists = [];
+    });
+  });
+  const inTree = {};
+  d.tree.forEach(c1=>c1.children.forEach(c2=>c2.lists.forEach(k=>{ inTree[normKey(k)] = true; })));
+  const orphans = d.lists.filter(L=>!inTree[normKey(L.key)]);
+  if(orphans.length){
+    let c1 = d.tree.find(c=>c.name === '미분류');
+    if(!c1){ c1 = { id:id(), name:'미분류', children:[] }; d.tree.push(c1); }
+    orphans.forEach(L=>{
+      const nm = (L.label && L.label.trim()) ? L.label : L.key;
+      c1.children.push({ id:id(), name:nm, lists:[L.key] });
+    });
+  }
+  d.tree.forEach(c1=>c1.children.forEach(c2=>{
+    c2.lists = c2.lists.filter(k=>d.lists.some(L=>normKey(L.key)===normKey(k))).slice(0,1);
+  }));
+}
+
+/* ---------- 주소 · 마지막으로 본 목록 ---------- */
+function requestedListKey(){
+  try{
+    const u = new URL(location.href);
+    let k = u.searchParams.get('list') || u.searchParams.get('l') || '';
+    if(!k && location.hash) k = decodeURIComponent(location.hash.slice(1));
+    return k || '';
+  }catch(e){ return ''; }
+}
+function findListIdx(key){
+  const n = normKey(key);
+  if(!n) return -1;
+  const i = data.lists.findIndex(L=>normKey(L.key)===n);
+  if(i >= 0) return i;
+  return data.lists.findIndex(L=> (L.aliases||[]).some(a=>normKey(a)===n));
+}
+function requestedMeName(){ try{ return new URL(location.href).searchParams.get('me') || ''; }catch(e){ return ''; } }
+function isStandalone(){
+  try{
+    return (window.matchMedia && (window.matchMedia('(display-mode: standalone)').matches
+      || window.matchMedia('(display-mode: fullscreen)').matches
+      || window.matchMedia('(display-mode: minimal-ui)').matches)) || navigator.standalone === true;
+  }catch(e){ return false; }
+}
+function rememberList(){ try{ localStorage.setItem(LAST_KEY, curList().key); }catch(e){} }
+function savedListKey(){ try{ return localStorage.getItem(LAST_KEY) || ''; }catch(e){ return ''; } }
+function selectListFromUrl(){
+  const key = requestedListKey();
+  const meName = requestedMeName();
+  if(isStandalone() && !key){
+    const saved = savedListKey();
+    const si = saved ? findListIdx(saved) : -1;
+    if(si >= 0) listIdx = si;
+  } else if(key){
+    const i = findListIdx(key);
+    if(i >= 0) listIdx = i;
+    else setTimeout(()=>toast('“'+key+'” 목록을 찾지 못해 기본 목록을 엽니다'), 400);
+  } else {
+    const saved = savedListKey();
+    const si = saved ? findListIdx(saved) : -1;
+    if(si >= 0) listIdx = si;
+  }
+  if(meName){
+    const p = personByName(curList(), meName);
+    if(p) setMe(p.id);
+    else setTimeout(()=>toast('“'+meName+'” 인물을 찾지 못했습니다'), 400);
+  }
+}
+function syncUrl(){
+  try{
+    const u = new URL(location.href);
+    u.searchParams.set('list', curList().key);
+    u.searchParams.delete('reset');
+    u.hash = '';
+    history.replaceState(history.state, '', u.pathname + u.search);
+  }catch(e){}
+}
+function listUrl(key){
+  try{ const u = new URL(location.href); u.searchParams.set('list', key); u.searchParams.delete('reset'); u.hash = ''; return u.pathname + u.search; }
+  catch(e){ return '?list=' + encodeURIComponent(key); }
+}
+
+/* ---------- 유틸 ---------- */
+const $ = s => document.querySelector(s);
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+function confirmDialog(message, onYes, yesLabel){
+  const box = $('#confirmBox');
+  $('#confirmMsg').textContent = message;
+  box.classList.add('show');
+  const yes = $('#confirmYes'), no = $('#confirmNo');
+  yes.textContent = yesLabel || '삭제';
+  const close = ()=>{ box.classList.remove('show'); yes.onclick=null; no.onclick=null; };
+  yes.onclick = ()=>{ close(); onYes && onYes(); };
+  no.onclick = close;
+}
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function findRoom(rid){ return curList().rooms.find(r=>r.id===rid); }
+
+/* 사이드바 순서 = 관리자 채팅 목록에서 정한 순서 그대로 (날짜를 쓰지 않는다) */
+function orderedRooms(L){ return visibleRooms(L); }
+
+/* ---------- 하단 여백 (기기마다 따로) ---------- */
+function devicePad(){
+  try{ const v = localStorage.getItem(PAD_KEY); return (v === null || v === '') ? null : Math.max(0, Number(v)||0); }
+  catch(e){ return null; }
+}
+function setDevicePad(v){
+  try{ if(v === null) localStorage.removeItem(PAD_KEY); else localStorage.setItem(PAD_KEY, String(Math.max(0, Number(v)||0))); }catch(e){}
+}
+function filePad(){ const L = curList(); return Math.max(0, Number(L && L.bottomPad)||0); }
+function effPad(){ const d = devicePad(); return (d === null) ? filePad() : d; }
+function applyBottomPad(){ document.getElementById('phone').style.setProperty('--safe-b', effPad()+'px'); }
+
+/* ---------- 간단한 마크다운 (답변 표시용) ---------- */
+function inlineMd(s){
+  s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
+  s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  s = s.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
+  return s;
+}
+function mdToHtml(src){
+  const lines = String(src||'').replace(/\r/g,'').split('\n');
+  let out = '', i = 0, para = [];
+  const flush = ()=>{ if(para.length){ out += '<p>' + para.map(x=>inlineMd(esc(x))).join('<br>') + '</p>'; para = []; } };
+  while(i < lines.length){
+    const ln = lines[i];
+    let m;
+    if(/^\s*```/.test(ln)){
+      flush();
+      const lang = ln.replace(/^\s*```/,'').trim();
+      const buf = []; i++;
+      while(i < lines.length && !/^\s*```/.test(lines[i])){ buf.push(lines[i]); i++; }
+      i++;
+      out += `<div class="md-code">${lang?`<div class="md-code-h">${esc(lang)}</div>`:''}<pre>${esc(buf.join('\n'))}</pre></div>`;
+      continue;
+    }
+    if(!ln.trim()){ flush(); i++; continue; }
+    if((m = ln.match(/^\s*(#{1,4})\s+(.*)$/))){
+      flush(); const lv = Math.min(4, m[1].length + 1);
+      out += `<h${lv}>${inlineMd(esc(m[2]))}</h${lv}>`; i++; continue;
+    }
+    if(/^\s*(-{3,}|\*{3,}|_{3,})\s*$/.test(ln)){ flush(); out += '<hr>'; i++; continue; }
+    if(/^\s*[-*•]\s+/.test(ln)){
+      flush(); const items = [];
+      while(i < lines.length && /^\s*[-*•]\s+/.test(lines[i])){ items.push(lines[i].replace(/^\s*[-*•]\s+/,'')); i++; }
+      out += '<ul>' + items.map(x=>'<li>'+inlineMd(esc(x))+'</li>').join('') + '</ul>'; continue;
+    }
+    if((m = ln.match(/^\s*(\d+)[.)]\s+/))){
+      flush(); const start = +m[1]; const items = [];
+      while(i < lines.length && /^\s*\d+[.)]\s+/.test(lines[i])){ items.push(lines[i].replace(/^\s*\d+[.)]\s+/,'')); i++; }
+      out += `<ol${start!==1?` start="${start}"`:''}>` + items.map(x=>'<li>'+inlineMd(esc(x))+'</li>').join('') + '</ol>'; continue;
+    }
+    if(/^\s*>\s?/.test(ln)){
+      flush(); const buf = [];
+      while(i < lines.length && /^\s*>\s?/.test(lines[i])){ buf.push(lines[i].replace(/^\s*>\s?/,'')); i++; }
+      out += '<blockquote>' + buf.map(x=>inlineMd(esc(x))).join('<br>') + '</blockquote>'; continue;
+    }
+    para.push(ln); i++;
+  }
+  flush();
+  return out;
+}
+
+/* ============================================================
+   손님 화면
+   ============================================================ */
+const BUBBLE_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M12 3.8c4.8 0 8.5 3.4 8.5 7.7s-3.7 7.7-8.5 7.7c-1 0-2-.1-2.9-.4L4.6 20.3l1.2-3.6C4.3 15.3 3.5 13.5 3.5 11.5 3.5 7.2 7.2 3.8 12 3.8z"/></svg>`;
+const ACTS_HTML = `<div class="m-acts">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6.5A2.5 2.5 0 0 0 13.5 4h-7A2.5 2.5 0 0 0 4 6.5v7A2.5 2.5 0 0 0 6.5 16H8"/></svg>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M7 10v10H4.5A1.5 1.5 0 0 1 3 18.5v-7A1.5 1.5 0 0 1 4.5 10zM7 10l4-7c1.7 0 2.8 1.3 2.5 3L13 9h5.3a2 2 0 0 1 2 2.4l-1.4 7A2 2 0 0 1 17 20H7"/></svg>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" style="transform:scaleY(-1)"><path d="M7 10v10H4.5A1.5 1.5 0 0 1 3 18.5v-7A1.5 1.5 0 0 1 4.5 10zM7 10l4-7c1.7 0 2.8 1.3 2.5 3L13 9h5.3a2 2 0 0 1 2 2.4l-1.4 7A2 2 0 0 1 17 20H7"/></svg>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/><path d="M5 13v5.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V13"/></svg>
+  <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5.5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18.5" cy="12" r="1.6"/></svg>
+</div>`;
+
+function renderGuest(){
+  rememberList();
+  applyBottomPad();
+  applyAppIdentity();
+  const L = curList();
+  $('#segA').textContent = L.modeA || 'Chat';
+  $('#segB').textContent = L.modeB || 'Work';
+  $('#drNewText').textContent = L.modeA || 'Chat';
+  $('#phText').textContent = L.placeholder || 'ChatGPT에게 물어보세요';
+  renderDrawer();
+  renderThread();
+}
+function renderThread(){
+  const L = curList();
+  const room = currentRoomId ? findRoom(currentRoomId) : null;
+  if(!room) currentRoomId = null;
+  const th = $('#thread'), sg = $('#suggest');
+  th.innerHTML = '';
+  if(!room){
+    const s = L.suggest || {};
+    if(s.show && String(s.text||'').trim()){
+      sg.style.display = 'flex';
+      sg.innerHTML = `<span class="emo">${esc(s.emoji||'')}</span><span>${esc(s.text)}</span>`;
+    } else { sg.style.display = 'none'; sg.innerHTML = ''; }
+    return;
+  }
+  sg.style.display = 'none';
+  room.messages.forEach(m=>{
+    const img = m.image ? `<div class="m-img" data-photo="1"><img src="${m.image}" alt=""></div>` : '';
+    const el = document.createElement('div');
+    if(m.role === 'assistant'){
+      el.innerHTML = (m.think ? `<div class="m-think">${esc(m.think)}</div>` : '')
+        + `<div class="m-ai">${img}${mdToHtml(m.text)}</div>` + ACTS_HTML;
+    } else {
+      el.className = 'm-user';
+      el.innerHTML = img + (m.text ? `<div class="b">${esc(m.text)}</div>` : '');
+    }
+    const ph = el.querySelector('[data-photo]');
+    if(ph) ph.onclick = ()=> openPhoto(m.image);
+    th.appendChild(el);
+  });
+}
+function renderDrawer(){
+  const L = curList();
+  const rooms = orderedRooms(L);
+  const pinned = rooms.filter(roomPinned), rest = rooms.filter(r=>!roomPinned(r));
+  const row = (r, pin)=> `<div class="dr-chat ${r.id===currentRoomId?'cur':''}" data-rid="${r.id}">${pin?BUBBLE_SVG:''}<span>${esc(r.title||'새 채팅')}</span></div>`;
+  let html = '';
+  if(pinned.length) html += '<div class="dr-sec">고정됨</div>' + pinned.map(r=>row(r, true)).join('');
+  if(rest.length) html += '<div class="dr-sec">최근</div>' + rest.map(r=>row(r, false)).join('');
+  if(!rooms.length && !meId() && !isAdmin) html = '<div class="dr-empty">이 폰에서 볼 사람을 아직 고르지 않았습니다.</div>';
+  const box = $('#drList');
+  box.innerHTML = html;
+  box.querySelectorAll('[data-rid]').forEach(el=> el.onclick = ()=> openChat(el.dataset.rid));
+}
+function openDrawer(){
+  renderDrawer();
+  $('#drawer').classList.add('open');
+  pushView('drawer');
+}
+function closeDrawer(){ $('#drawer').classList.remove('open'); }
+/* 사이드바에서 채팅을 고르면 사이드바의 뒤로가기 자리를 그 채팅이 이어받는다 */
+function openChat(rid){
+  const fromDrawer = drawerOpen();
+  const was = currentRoomId;
+  currentRoomId = rid;
+  renderThread();
+  renderDrawer();
+  const th = $('#thread'); th.scrollTop = 0;
+  if(fromDrawer) closeDrawer();
+  else if(!was) pushView('chat');
+}
+function newChat(){
+  if(drawerOpen()){ closeDrawer(); currentRoomId = null; renderThread(); renderDrawer(); return; }
+  if(currentRoomId) goBack();
+}
+
+/* 이 폰을 쓸 지점 고르기 */
+function renderBranchPicker(){
+  const box = $('#pickBranch');
+  const list = $('#branchList');
+  list.innerHTML = '';
+  (data.tree||[]).forEach(c1=>{
+    const cnt = countInCat1(c1);
+    const row = document.createElement('div');
+    row.className = 'bp-row';
+    row.innerHTML = `<div class="bp-name">${esc(c1.name)}<div class="bp-cnt">테마 ${cnt.subs}개</div></div><span class="bp-go">이 지점으로</span>`;
+    row.onclick = ()=>{
+      setBranch(c1);
+      box.classList.remove('show');
+      fixListForBranch();
+      isAdmin = true;
+      renderGuest();
+      openAdmin(true);
+      toast('“' + c1.name + '” 지점으로 설정했습니다');
+    };
+    list.appendChild(row);
+  });
+  box.classList.add('show');
+}
+
+function openPhoto(src){ $('#photoViewerImg').src = src; $('#photoViewer').classList.add('show'); pushView('photo'); }
+function closePhoto(){ $('#photoViewer').classList.remove('show'); $('#photoViewerImg').src = ''; }
+
+/* ---------- 앱 이름 / 설치 ---------- */
+function appNameOf(){ return (String((data && data.appName) || '').trim()) || 'ChatGPT'; }
+function applyAppIdentity(){
+  const nm = appNameOf();
+  document.title = nm;
+  const at = document.getElementById('appleTitle'); if(at) at.content = nm;
+  const dt = document.getElementById('drTitle'); if(dt) dt.textContent = nm;
+}
+window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); deferredInstall = e; refreshAdminInfo(); });
+window.addEventListener('appinstalled', ()=>{ deferredInstall = null; refreshAdminInfo(); });
+
+function runDiag(){
+  const out = [];
+  const ua = navigator.userAgent || '';
+  const cm = ua.match(/Chrome\/(\d+)/);
+  const cv = cm ? Number(cm[1]) : 0;
+  const inApp = /; wv\)|\bwv\b|KAKAOTALK|FBAN|FB_IAB|Instagram|NAVER|Line\//i.test(ua);
+  out.push('코드 버전: ' + CODE_VERSION + ' / 파일 버전: ' + DATA_VERSION);
+  out.push('브라우저: ' + (cm ? ('Chrome ' + cm[1]) : '크롬 아님 또는 확인 불가'));
+  out.push('버전 판정: ' + (cv === 0 ? '확인 불가' : (cv >= 76 ? '앱 설치 지원 버전' : '너무 오래된 버전 — 크롬 업데이트 필요')));
+  out.push('내장 브라우저: ' + (inApp ? '예 — 크롬 앱에서 직접 열어야 설치됩니다' : '아니오'));
+  out.push('https(보안) 상태: ' + (window.isSecureContext ? '정상' : '아님 — 설치 불가'));
+  out.push('서비스워커 상태: ' + swState);
+  out.push('설치 신호(beforeinstallprompt): ' + (deferredInstall ? '받음' : '아직 없음'));
+  const box = document.getElementById('diagOut');
+  box.style.display = 'block';
+  box.textContent = out.join('\n') + '\n서버 응답 확인 중…';
+  const jobs = [];
+  jobs.push(fetch('./sw.js?diag=' + Date.now(), {cache:'no-store'})
+    .then(r=> 'sw.js 응답: ' + r.status + ' / ' + (r.headers.get('content-type')||'?'))
+    .catch(e=> 'sw.js 응답: 실패 (' + e + ')'));
+  jobs.push(fetch('./manifest.webmanifest', {cache:'no-store'})
+    .then(r=> r.json().then(j=> '매니페스트 응답: ' + r.status + ' / 이름 ' + j.name, ()=> '매니페스트 응답: ' + r.status + ' / 내용 읽기 실패'))
+    .catch(()=> '매니페스트 응답: 실패'));
+  Promise.all(jobs).then(extra=>{ box.textContent = out.concat(extra).join('\n'); });
+}
+function refreshAdminInfo(){
+  const set = (idv, v)=>{ const el = document.getElementById(idv); if(el) el.textContent = v; };
+  set('swState', swState); set('storeKind', storeKind); set('persistState', persistState); set('quotaText', quotaText);
+  set('canInstall', deferredInstall ? '예 — 설치 버튼을 누르세요' : '아직 아님');
+}
+function installApp(){
+  if(deferredInstall){ deferredInstall.prompt(); deferredInstall.userChoice.finally(()=>{ deferredInstall = null; }); return; }
+  if(location.protocol === 'file:'){ toast('파일로 직접 연 상태에서는 설치할 수 없습니다.'); return; }
+  if(!window.isSecureContext){ toast('https 로 접속해야 앱 설치가 가능합니다.'); return; }
+  toast('크롬 메뉴 ⋮ → “앱 설치” 또는 “홈 화면에 추가”를 눌러주세요.');
+}
+
+/* ============================================================
+   관리자 모드
+   ============================================================ */
+function openAdmin(fromTop){
+  isAdmin = true;
+  $('#modePill').classList.add('show');
+  if(drawerOpen()) closeDrawer();
+  $('#adminOverlay').classList.add('active');
+  if(fromTop){
+    const lk = branchLocked() ? lockedC1() : null;
+    treePath = lk ? [lk.id] : [];
+    adminListPicked = false; adminRoomId = '';
+  } else {
+    try{
+      const c = catOfList(curList().key);
+      if(c){ treePath = [c.c1.id, c.c2.id]; adminListPicked = true; }
+      else { treePath = []; adminListPicked = false; }
+    }catch(e){ treePath = []; adminListPicked = false; }
+  }
+  renderAdminHome(true);
+  pushView('admin');
+}
+function closeAdmin(){
+  $('#adminOverlay').classList.remove('active');
+  renderGuest();
+}
+function guestMode(){
+  isAdmin = false;
+  $('#modePill').classList.remove('show');
+  toast('손님 모드로 전환되었습니다');
+  if($('#adminOverlay').classList.contains('active')) goBack();
+  else renderGuest();
+}
+
+/* ----- 분류(폴더) 탐색 ----- */
+let treePath = [];
+let adminListPicked = false;
+let editingNode = '';
+let foldState = { look:true, pad:true };
+
+function curC1(){ return treePath[0] ? data.tree.find(c=>c.id===treePath[0]) : null; }
+function curC2(){ const c1 = curC1(); return (c1 && treePath[1]) ? (c1.children||[]).find(c=>c.id===treePath[1]) : null; }
+function listLabel(L){ return (L.label && L.label.trim()) ? L.label : L.key; }
+function breadcrumbHtml(){
+  const c1 = curC1(), c2 = curC2();
+  if(!c1) return '<span class="crumb-txt">전체 분류</span>';
+  return '<span class="crumb-txt">' + esc(c1.name) + (c2 ? '<span class="sep">›</span>' + esc(c2.name) : '') + '</span>';
+}
+function nameEditorHtml(keyValue){
+  if(keyValue === null){
+    return `
+      <div class="field" style="margin:8px 0 0"><label>이름</label><input id="nodeName" value=""></div>
+      <div class="row-actions">
+        <button class="btn btn-primary btn-sm" id="nodeSave">저장</button>
+        <button class="btn btn-ghost btn-sm" id="nodeCancel">취소</button>
+      </div>`;
+  }
+  return `
+    <div class="field" style="margin:8px 0 0"><label>이름 (관리자 화면 표시용)</label><input id="nodeName" value=""></div>
+    <div class="field">
+      <label>주소용 이름 (?list= 뒤에 붙는 이름) — 위 이름을 적으면 자동으로 채워집니다</label>
+      <input id="nodeKey" value="${esc(keyValue)}">
+      <div class="hint" style="margin-top:4px">주소를 바꾸면 이미 설치된 앱은 지우고 다시 설치해야 합니다.</div>
+    </div>
+    <div class="row-actions">
+      <button class="btn btn-primary btn-sm" id="nodeSave">저장</button>
+      <button class="btn btn-ghost btn-sm" id="nodeAuto">주소 다시 만들기</button>
+      <button class="btn btn-ghost btn-sm" id="nodeCancel">취소</button>
+    </div>`;
+}
+function treeItemsHtml(){
+  const c1 = curC1(), c2 = curC2();
+  let html = '';
+  if(!c1){
+    if(!data.tree.length) return '<div class="hint">분류가 없습니다. 아래에서 새 대분류를 만드세요.</div>';
+    data.tree.forEach(node=>{
+      const cnt = countInCat1(node);
+      html += `
+        <div class="admin-list-item" data-sort="${node.id}">
+          <div class="top">
+            <div style="min-width:0">
+              <div class="node-name" data-rename="c1:${node.id}" data-cur="${esc(node.name)}">${esc(node.name)}<span class="pen">✎</span></div>
+              <div class="rsub">중분류 ${cnt.subs}개 · 채팅 ${cnt.rooms}개</div>
+            </div>
+            <div class="row-actions">
+              <button class="btn btn-ghost btn-sm" data-enter="${node.id}">열기</button>
+              <button class="btn btn-danger btn-sm" data-cdel="c1:${node.id}">삭제</button>
+            </div>
+          </div>
+          ${editingNode === 'c1:'+node.id ? nameEditorHtml(null) : ''}
+        </div>`;
+    });
+    return html;
+  }
+  if(!c2){
+    if(!c1.children.length) return '<div class="hint">중분류가 없습니다. 아래에서 새 중분류를 만드세요.</div>';
+    c1.children.forEach(node=>{
+      const L = listsOfCat(node)[0];
+      const rooms = L ? L.rooms.length : 0;
+      const msgs = L ? L.rooms.reduce((a,r)=>a+r.messages.length,0) : 0;
+      const ppl = L ? peopleOf(L).length : 0;
+      html += `
+        <div class="admin-list-item" data-sort="${node.id}">
+          <div class="top">
+            <div style="min-width:0">
+              <div class="node-name" data-rename="c2:${node.id}" data-cur="${esc(node.name)}">${esc(node.name)}<span class="pen">✎</span></div>
+              <div class="rsub">인물 ${ppl}명 · 채팅 ${rooms}개 · 메시지 ${msgs}개</div>
+              ${L ? `<div class="rsub">?list=${esc(L.key)}</div>` : ''}
+            </div>
+            <div class="row-actions">
+              <button class="btn btn-ghost btn-sm" data-enter="${node.id}">열기</button>
+              ${L ? `<button class="btn btn-ghost btn-sm" data-lcopy="${esc(L.key)}">복제</button>` : ''}
+              <button class="btn btn-danger btn-sm" data-cdel="c2:${node.id}">삭제</button>
+            </div>
+          </div>
+          ${editingNode === 'c2:'+node.id ? nameEditorHtml(L ? L.key : null) : ''}
+        </div>`;
+    });
+    return html;
+  }
+  /* 중분류 안 = 등장인물 명단 */
+  const L = listOfCat(c1, c2);
+  const ps = peopleOf(L);
+  if(!ps.length) return '<div class="hint">등장인물이 없습니다. 아래에서 새 인물을 만드세요.<br>인물을 만든 뒤 채팅을 추가하면 됩니다.</div>';
+  const myId = meId();
+  ps.forEach(p=>{
+    const n = roomsOfPerson(L, p.id).length;
+    html += `
+      <div class="admin-list-item ${p.id===myId?'on':''}" data-sort="${p.id}">
+        <div class="top">
+          <div style="min-width:0">
+            <div class="node-name" data-rename="P:${p.id}" data-cur="${esc(p.name)}">${esc(p.name)}<span class="pen">✎</span></div>
+            <div class="rsub">채팅 ${n}개 ${p.id===myId ? ' · <span class="me-tag">이 기기의 나</span>' : ''}</div>
+          </div>
+          <div class="row-actions">
+            ${p.id===myId ? '' : `<button class="btn btn-ghost btn-sm" data-pme="${p.id}">이 사람으로 보기</button>`}
+            <button class="btn btn-danger btn-sm" data-pdel="${p.id}">삭제</button>
+          </div>
+        </div>
+        ${editingNode === 'P:'+p.id ? nameEditorHtml(null) : ''}
+      </div>`;
+  });
+  return html;
+}
+
+/* ----- 끌어서 순서 바꾸기 ----- */
+function makeSortable(box, onDone){
+  if(!box) return;
+  box.classList.add('sortable');
+  let el = null, armed = false, dragging = false, startY = 0, timer = null;
+  const items = ()=> [].slice.call(box.querySelectorAll('[data-sort]'));
+  const stop = ()=>{
+    clearTimeout(timer);
+    if(el) el.classList.remove('dragging');
+    const did = dragging;
+    el = null; armed = false; dragging = false;
+    if(did) onDone(items().map(x=>x.dataset.sort));
+  };
+  box.addEventListener('pointerdown', e=>{
+    const t = e.target.closest('[data-sort]');
+    if(!t || e.target.closest('button, input, textarea, select, .node-name')) return;
+    el = t; startY = e.clientY; armed = false; dragging = false;
+    if(e.pointerType === 'mouse'){ armed = true; }
+    else { timer = setTimeout(()=>{ armed = true; el.classList.add('dragging'); }, 280); }
+  });
+  box.addEventListener('pointermove', e=>{
+    if(!el) return;
+    if(!armed){ if(Math.abs(e.clientY - startY) > 8){ clearTimeout(timer); el = null; } return; }
+    if(!dragging){
+      if(Math.abs(e.clientY - startY) < 4) return;
+      dragging = true; el.classList.add('dragging');
+      try{ el.setPointerCapture(e.pointerId); }catch(err){}
+    }
+    const y = e.clientY;
+    items().forEach(s=>{
+      if(s === el) return;
+      const r = s.getBoundingClientRect();
+      if(y > r.top && y < r.bottom){
+        if(y < r.top + r.height/2) box.insertBefore(el, s);
+        else box.insertBefore(el, s.nextSibling);
+      }
+    });
+  });
+  box.addEventListener('pointerup', stop);
+  box.addEventListener('pointercancel', stop);
+  box.addEventListener('touchmove', e=>{ if(dragging) e.preventDefault(); }, {passive:false});
+}
+
+function uniqueName(existing, base){ let n = base, i = 2; while(existing.indexOf(n) !== -1){ n = base + ' ' + i; i++; } return n; }
+function keysUnderC1(c1){ const out = []; (c1.children||[]).forEach(c2=>(c2.lists||[]).forEach(k=>out.push(k))); return out; }
+function deleteListByKey(key){
+  const L = listByKey(key);
+  if(!L) return;
+  const cur = data.lists[listIdx];
+  const i = data.lists.indexOf(L);
+  data.lists.splice(i, 1);
+  treeRemoveList(key);
+  const ni = data.lists.indexOf(cur);
+  listIdx = (ni >= 0) ? ni : Math.max(0, Math.min(i, data.lists.length - 1));
+}
+function reorderListsByTree(){
+  const cur = data.lists[listIdx];
+  const seen = {}, out = [];
+  data.tree.forEach(c1=>(c1.children||[]).forEach(c2=>(c2.lists||[]).forEach(k=>{
+    const L = listByKey(k);
+    if(L && !seen[normKey(L.key)]){ seen[normKey(L.key)] = 1; out.push(L); }
+  })));
+  data.lists.forEach(L=>{ if(!seen[normKey(L.key)]) out.push(L); });
+  data.lists = out;
+  const i = data.lists.indexOf(cur);
+  listIdx = (i >= 0) ? i : 0;
+}
+
+function bindTreeSection(body){
+  body.querySelectorAll('[data-fold]').forEach(h=>{ h.onclick = ()=>{ const k = h.dataset.fold; foldState[k] = !foldState[k]; renderAdminHome(); }; });
+  const up = $('#treeUp');
+  if(up) up.onclick = ()=>{
+    if(treePath.length <= treeMinDepth()) return;
+    treePath.pop(); editingNode = '';
+    adminListPicked = false; adminRoomId = '';
+    renderAdminHome();
+  };
+  body.querySelectorAll('[data-enter]').forEach(b=> b.onclick = ()=>{
+    const wasC1 = !!curC1();
+    treePath.push(b.dataset.enter); editingNode = '';
+    adminRoomId = '';
+    const c1 = curC1(), c2 = curC2();
+    if(wasC1 && c1 && c2){
+      const L = listOfCat(c1, c2);
+      const i = data.lists.indexOf(L);
+      if(i >= 0){ if(i !== listIdx) currentRoomId = null; listIdx = i; }
+      adminListPicked = true;
+    } else adminListPicked = false;
+    save(); renderAdminHome();
+  });
+  body.querySelectorAll('[data-pme]').forEach(b=> b.onclick = ()=>{
+    setMe(b.dataset.pme); currentRoomId = null; save(); renderAdminHome();
+    toast('이 기기에서 볼 사람을 바꿨습니다');
+  });
+  body.querySelectorAll('[data-pdel]').forEach(b=> b.onclick = ()=>{
+    const L = curList();
+    const p = personById(L, b.dataset.pdel);
+    if(!p) return;
+    const n = roomsOfPerson(L, p.id).length;
+    confirmDialog('인물 “' + p.name + '” 을(를) 명단에서 지울까요?'
+      + (n ? '\n참여 중인 채팅 ' + n + '개에서도 빠집니다. (채팅과 메시지는 그대로 남습니다)' : ''), ()=>{
+      const k = normKey(p.name);
+      const wasMe = (meId() === p.id);
+      (L.rooms||[]).forEach(r=>{ r.participants = (r.participants||[]).filter(x=>normKey(x.name) !== k); });
+      L.people = L.people.filter(x=>x.id !== p.id);
+      if(wasMe){ delete viewAs[L.key]; saveView(); }
+      save(); renderAdminHome(); toast('지웠습니다');
+    });
+  });
+  body.querySelectorAll('[data-rename]').forEach(el=>{
+    el.ondblclick = ()=>{ editingNode = el.dataset.rename; renderAdminHome(); };
+  });
+
+  const nSave = $('#nodeSave');
+  if(nSave){
+    const nName = $('#nodeName'), nKey = $('#nodeKey');
+    const cur = body.querySelector(`[data-rename="${editingNode}"]`);
+    nName.value = cur ? cur.dataset.cur : '';
+    setTimeout(()=>{ try{ nName.focus(); nName.select(); }catch(e){} }, 0);
+    $('#nodeCancel').onclick = ()=>{ editingNode = ''; renderAdminHome(); };
+    const makeKeyNow = ()=>{
+      const c1 = curC1();
+      const node = c1 && (c1.children||[]).find(c=>c.id === editingNode.slice(3));
+      const self = node ? listsOfCat(node)[0] : null;
+      return makeListKey(c1?c1.name:'', nName.value.trim() || '중분류', '', self);
+    };
+    if(nKey){
+      let keyTouched = false;
+      nKey.oninput = ()=>{ keyTouched = true; };
+      nName.oninput = ()=>{ if(!keyTouched) nKey.value = makeKeyNow(); };
+    }
+    const auto = $('#nodeAuto');
+    if(auto) auto.onclick = ()=>{ if(nKey) nKey.value = makeKeyNow(); };
+    nName.onkeydown = e=>{ if(e.key === 'Enter') nSave.click(); };
+    nSave.onclick = ()=>{
+      const nameVal = nName.value.trim();
+      if(!nameVal){ toast('이름을 입력하세요'); return; }
+      if(nKey && !nKey.value.trim()) nKey.value = makeKeyNow();
+      if(editingNode.indexOf('c1:') === 0){
+        const node = data.tree.find(c=>c.id === editingNode.slice(3));
+        if(node) node.name = nameVal;
+      } else if(editingNode.indexOf('P:') === 0){
+        const L = curList();
+        const p = personById(L, editingNode.slice(2));
+        if(p && p.name !== nameVal && !renamePerson(L, p, nameVal)){ toast('이름을 바꾸지 못했습니다'); return; }
+      } else if(editingNode.indexOf('c2:') === 0){
+        const c1 = curC1();
+        const node = c1 && (c1.children||[]).find(c=>c.id === editingNode.slice(3));
+        if(node){
+          node.name = nameVal;
+          const L = listsOfCat(node)[0];
+          if(L){
+            L.label = nameVal;
+            const oldKey = L.key;
+            const newKey = sanitizeKey(nKey ? nKey.value : '');
+            if(newKey && normKey(newKey) !== normKey(oldKey)){
+              if(data.lists.some(x=>x !== L && normKey(x.key) === normKey(newKey))){ toast('같은 주소용 이름이 이미 있습니다'); return; }
+              L.key = newKey;
+              L.aliases = (L.aliases||[]).concat([oldKey]).filter(a=>normKey(a) !== normKey(newKey));
+              if(viewAs[oldKey]){ viewAs[newKey] = viewAs[oldKey]; delete viewAs[oldKey]; saveView(); }
+              treeRenameListKey(oldKey, newKey);
+              try{ if(savedListKey() && normKey(savedListKey()) === normKey(oldKey)) localStorage.setItem(LAST_KEY, newKey); }catch(e){}
+            }
+          }
+        }
+      }
+      editingNode = ''; save(); syncUrl(); renderAdminHome(); toast('저장되었습니다');
+    };
+  }
+
+  const add = $('#treeAdd');
+  if(add) add.onclick = ()=>{
+    const c1 = curC1(), c2 = curC2();
+    if(!c1){
+      data.tree.push({ id:id(), name:uniqueName(data.tree.map(x=>x.name), '새 대분류'), children:[] });
+    } else if(!c2){
+      const node = { id:id(), name:uniqueName(c1.children.map(x=>x.name), '새 중분류'), lists:[] };
+      c1.children.push(node);
+      listOfCat(c1, node);
+    } else {
+      const L = listOfCat(c1, c2);
+      const list = peopleOf(L);
+      const nm = uniqueName(list.map(p=>p.name), '새 인물');
+      list.push({ id:personId(nm), name:nm });
+      editingNode = 'P:' + personId(nm);
+    }
+    save(); renderAdminHome();
+  };
+
+  body.querySelectorAll('[data-cdel]').forEach(b=> b.onclick = ()=>{
+    const v = b.dataset.cdel;
+    const isC1 = (v.indexOf('c1:') === 0);
+    let node, keys, removeIt;
+    if(isC1){
+      const i = data.tree.findIndex(c=>c.id === v.slice(3));
+      if(i < 0) return;
+      node = data.tree[i]; keys = keysUnderC1(node);
+      removeIt = ()=> data.tree.splice(i, 1);
+    } else {
+      const c1 = curC1(); if(!c1) return;
+      const i = (c1.children||[]).findIndex(c=>c.id === v.slice(3));
+      if(i < 0) return;
+      node = c1.children[i]; keys = (node.lists||[]).slice();
+      removeIt = ()=> c1.children.splice(i, 1);
+    }
+    if(keys.length && keys.length >= data.lists.length){ toast('목록은 최소 1개 필요합니다. 다른 분류에 목록을 남겨두세요.'); return; }
+    let rooms = 0;
+    keys.forEach(k=>{ const L = listByKey(k); if(L) rooms += (L.rooms||[]).length; });
+    const doIt = ()=>{
+      const openKey = curList() ? curList().key : '';
+      keys.forEach(k=>deleteListByKey(k));
+      removeIt();
+      if(keys.some(k=>normKey(k) === normKey(openKey))){ adminListPicked = false; adminRoomId = ''; currentRoomId = null; }
+      save(); renderAdminHome(); toast('삭제되었습니다');
+    };
+    if(rooms) confirmDialog('“' + node.name + '” 안에 채팅 ' + rooms + '개가 있습니다.\n대화 내용까지 모두 삭제할까요?', doIt, '모두 삭제');
+    else confirmDialog('“' + node.name + '” 분류를 삭제할까요?', doIt);
+  });
+
+  body.querySelectorAll('[data-lcopy]').forEach(b=> b.onclick = ()=>{
+    const src = listByKey(b.dataset.lcopy);
+    const c1 = curC1();
+    if(!src || !c1) return;
+    const c = catOfList(src.key);
+    const nodeName = uniqueName(c1.children.map(x=>x.name), (c ? c.c2.name : listLabel(src)) + ' 사본');
+    const copy = deepCopy(src);
+    copy.label = nodeName;
+    copy.aliases = [];
+    copy.key = makeListKey(c1.name, nodeName, '', null);
+    copy.rooms.forEach(r=>{ r.id = id(); r.participants.forEach(p=>p.id = id()); r.messages.forEach(m=>m.id = id()); });
+    data.lists.push(copy);
+    const at = c ? (c1.children.indexOf(c.c2) + 1) : c1.children.length;
+    c1.children.splice(at, 0, { id:id(), name:nodeName, lists:[copy.key] });
+    save(); renderAdminHome(); toast('복제되었습니다');
+  });
+
+  makeSortable($('#treeBox'), order=>{
+    const c1 = curC1(), c2 = curC2();
+    if(!c1) data.tree = order.map(v=>data.tree.find(c=>c.id === v)).filter(Boolean);
+    else if(!c2){ c1.children = order.map(v=>(c1.children||[]).find(c=>c.id === v)).filter(Boolean); reorderListsByTree(); }
+    else {
+      const L = curList();
+      L.people = order.map(v=>peopleOf(L).find(p=>p.id === v)).filter(Boolean).concat(peopleOf(L).filter(p=>order.indexOf(p.id) < 0));
+    }
+    save(); renderAdminHome(); toast('순서가 바뀌었습니다');
+  });
+}
+
+/* ----- 다른 중분류의 채팅 불러오기 ----- */
+let impPath = [];
+function importRoomPanel(){
+  const c1 = impPath[0] ? data.tree.find(c=>c.id === impPath[0]) : null;
+  const c2 = (c1 && impPath[1]) ? (c1.children||[]).find(c=>c.id === impPath[1]) : null;
+  const L  = c2 ? listsOfCat(c2)[0] : null;
+  let rows = '';
+  if(!c1){
+    data.tree.forEach(node=>{
+      rows += `<div class="admin-list-item"><div class="top"><div class="rname">${esc(node.name)}</div>
+        <button class="btn btn-ghost btn-sm" data-impgo="${node.id}">열기</button></div></div>`;
+    });
+  } else if(!c2){
+    (c1.children||[]).forEach(node=>{
+      const x = listsOfCat(node)[0];
+      rows += `<div class="admin-list-item"><div class="top"><div><div class="rname">${esc(node.name)}</div>
+        <div class="rsub">채팅 ${x ? x.rooms.length : 0}개</div></div>
+        <button class="btn btn-ghost btn-sm" data-impgo="${node.id}">열기</button></div></div>`;
+    });
+  } else if(!L || !L.rooms.length){
+    rows = '<div class="hint" style="margin:0">이 중분류에는 채팅이 없습니다.</div>';
+  } else {
+    L.rooms.forEach((r, ri)=>{
+      const same = (L === curList());
+      rows += `<div class="admin-list-item"><div class="top"><div style="min-width:0">
+        <div class="rname">${esc(r.title||'새 채팅')}</div>
+        <div class="rsub">${esc(r.participants.map(p=>p.name).join(', '))} · 메시지 ${r.messages.length}개</div></div>
+        ${same ? '<span class="rsub">지금 중분류</span>' : `<button class="btn btn-primary btn-sm" data-imp="${esc(L.key)}:${ri}">불러오기</button>`}
+        </div></div>`;
+    });
+  }
+  const crumb = [c1 && c1.name, c2 && c2.name].filter(Boolean).join(' › ') || '전체 분류';
+  return `
+    <div style="background:#f7f9fb;border:1px solid #e3e7ec;border-radius:10px;padding:10px;margin-bottom:10px">
+      <div class="hint" style="margin:0 0 8px">다른 중분류의 채팅을 <b>대화 내용 그대로</b> 여기로 복사합니다. 원본은 그대로 남습니다.</div>
+      <div class="crumb">
+        ${impPath.length ? '<button class="btn btn-ghost btn-sm" id="impUp">↑ 상위 폴더</button>' : ''}
+        <span class="crumb-txt">${esc(crumb)}</span>
+      </div>
+      ${rows}
+      <button class="btn btn-ghost btn-sm btn-block" id="importRoomClose">닫기</button>
+    </div>`;
+}
+
+/* ----- 관리자 첫 화면 ----- */
+function renderAdminHome(resetScroll){
+  enforceBranchLock();
+  fixListForBranch();
+  try{ refreshQuota().then(()=>{ const q = document.getElementById('quotaText'); if(q) q.textContent = quotaText; }); }catch(e){}
+  syncUrl();
+  $('#adminTitle').textContent = '관리자';
+  const L = curList();
+  const body = $('#paneHome');
+  const sg = L.suggest || {};
+  let html = `
+    ${hasLocalEdits() ? `<div class="admin-section" style="background:#fff8d6;border:1px solid #f0dd8a">
+      <h3 style="color:#7a5b00">이 기기에만 저장된 수정이 있습니다</h3>
+      <div class="hint" style="margin-top:0;color:#7a5b00">지금 보이는 내용은 <b>이 기기에만</b> 저장되어 있고, index.html 파일에는 아직 들어가지 않았습니다.<br>
+        아래 <b>“새 index.html 만들기”</b>를 눌러 파일을 만든 뒤 깃허브에 올리세요.</div>
+      <button class="btn btn-blue btn-block" id="exportHtmlTop">새 index.html 만들기</button>
+    </div>` : ''}
+
+    <div class="admin-section">
+      <h3>${curC2() ? '등장인물' : '대화 목록'}</h3>
+      <div class="crumb">
+        ${treePath.length > treeMinDepth() ? '<button class="btn btn-ghost btn-sm" id="treeUp">↑ 상위 폴더</button>' : ''}
+        ${breadcrumbHtml()}
+      </div>
+      ${branchLocked() ? `<div class="hint" style="margin-top:0">이 폰은 <b>${esc(lockedC1().name)}</b> 지점 전용입니다.</div>` : ''}
+      <div class="drag-hint">끌어서 순서를 변경할 수 있습니다. 이름은 ✎ 를 더블클릭해서 고칩니다.</div>
+      <div id="treeBox">${treeItemsHtml()}</div>
+      <button class="btn btn-blue btn-block" id="treeAdd" style="margin-top:4px">＋ ${curC2() ? '새 인물' : (curC1() ? '새 중분류' : '새 대분류')}</button>
+      ${curC2()
+        ? `<div class="hint"><b>중분류 하나 = GPT 앱 한 벌</b>입니다. 채팅은 여기에 한 번만 쓰고,
+             폰마다 <b>“나”만 고르면</b> 그 사람이 참여자로 들어간 채팅만 사이드바에 보입니다.<br>
+             지금 이 기기의 “나”: <b>${esc(mePerson() ? mePerson().name : '고르지 않음')}</b> · 주소 <b>?list=${esc(L.key)}</b></div>`
+        : `<div class="hint">대분류(지점) › 중분류(테마)로 정리합니다. <b>중분류 하나가 GPT 앱 한 벌</b>입니다.</div>`}
+    </div>
+
+    ${adminListPicked ? `<div class="admin-section ${foldState.look?'folded':''}">
+      <h3 class="foldable" data-fold="look">첫 화면 꾸미기 <span class="fold-arrow">${foldState.look?'▶':'▼'}</span></h3>
+      <div class="fold-body">
+        <div class="field"><label class="chk"><input type="checkbox" id="ed-sgShow" ${sg.show?'checked':''}> 입력창 위 추천 문구 표시</label></div>
+        <div class="field inline">
+          <div style="flex:0 0 70px"><label>아이콘</label><input id="ed-sgEmoji" value="${esc(sg.emoji||'')}"></div>
+          <div><label>추천 문구</label><input id="ed-sgText" value="${esc(sg.text||'')}" placeholder="다산 근처 주말 아이디어"></div>
+        </div>
+        <div class="field"><label>입력창 안내 글자</label><input id="ed-ph" value="${esc(L.placeholder||'')}"></div>
+        <div class="field inline">
+          <div><label>가운데 버튼 왼쪽</label><input id="ed-modeA" value="${esc(L.modeA||'Chat')}"></div>
+          <div><label>가운데 버튼 오른쪽</label><input id="ed-modeB" value="${esc(L.modeB||'Work')}"></div>
+        </div>
+        <div class="field"><label class="chk"><input type="checkbox" id="ed-startDrawer" ${L.startDrawer?'checked':''}> 앱을 열면 사이드바(채팅 기록)부터 보이기</label></div>
+        <button class="btn btn-ghost btn-sm" id="saveLook">꾸미기 저장</button>
+      </div>
+    </div>` : ''}
+
+    <div class="admin-section ${foldState.pad?'folded':''}">
+      <h3 class="foldable" data-fold="pad">하단 여백 (기기 메뉴바 겹침 보정) <span class="fold-arrow">${foldState.pad?'▶':'▼'}</span></h3>
+      <div class="fold-body">
+        <div class="field"><input id="ed-bottomPad" type="number" min="0" max="120" step="2" value="${effPad()}"></div>
+        <div class="hint" style="margin-top:0;margin-bottom:10px">입력창이 폰 아래 버튼에 가리면 숫자(px)를 키우세요. 보통 24~48.<br>
+          <b>이 기기에만 저장</b>됩니다. 지금 ${devicePad()===null ? '<b>파일 기본값</b>' : '<b>이 기기 값</b>'} 사용 중 · 파일 기본값 <b>${filePad()}</b></div>
+        <div class="row-actions">
+          <button class="btn btn-ghost btn-sm" id="saveBottomPad">이 기기에 저장</button>
+          <button class="btn btn-ghost btn-sm" id="clearBottomPad" ${devicePad()===null?'disabled':''}>기본값으로</button>
+          ${wideAdmin() ? '<button class="btn btn-ghost btn-sm" id="padToFile">파일 기본값으로도 저장</button>' : ''}
+        </div>
+      </div>
+    </div>
+
+    ${(wideAdmin() || !adminListPicked) ? '' : roomListHtml()}
+
+    <div class="admin-section">
+      <h3>앱 / 데이터</h3>
+      <div class="field"><label>앱 이름 (홈 화면·사이드바 제목)</label><input id="ed-appName" value="${esc(data.appName||'ChatGPT')}"></div>
+      <div class="row-actions" style="margin-bottom:10px">
+        <button class="btn btn-ghost btn-sm" id="saveAppName">이름 저장</button>
+        <button class="btn btn-primary btn-sm" id="installBtn">앱 설치</button>
+        <button class="btn btn-ghost btn-sm" id="diagBtn">설치 진단</button>
+      </div>
+      <div class="kv" id="diagOut" style="white-space:pre-wrap;background:#f4f6f8;border-radius:8px;padding:8px;display:none"></div>
+      <div class="hint" style="margin-top:0">홈 화면 아이콘 이름은 <b>manifest.webmanifest</b> 의 name 으로 정해집니다.
+        바꾸려면 그 파일도 고쳐 올리고, 아이콘을 지운 뒤 다시 설치하세요.</div>
+      <div class="kv" style="margin-top:8px">
+        지금 보이는 내용 <b>목록 ${data.lists.length}개 · 채팅 ${data.lists.reduce((a,x)=>a+x.rooms.length,0)}개 · 메시지 ${data.lists.reduce((a,x)=>a+x.rooms.reduce((b,r)=>b+r.messages.length,0),0)}개</b><br>
+        코드 버전 <b>${esc(CODE_VERSION)}</b><br>
+        파일 버전 <b>${esc(DATA_VERSION)}</b> · 지문 <b>${esc(DATA_FP)}</b><br>
+        폰에 저장된 버전 <b>${esc((storedBox()||{}).version || '없음')}</b><br>
+        서비스워커 <b id="swState">${esc(swState)}</b> · 설치 가능 <b id="canInstall">${deferredInstall ? '예' : '아직 아님'}</b><br>
+        저장 방식 <b id="storeKind">${esc(storeKind)}</b> · 영구 저장 <b id="persistState">${esc(persistState)}</b><br>
+        지금 내용 <b>${storageKB()} KB</b> · 기기 저장 공간 <b id="quotaText">${esc(quotaText)}</b>
+      </div>
+      <button class="btn btn-primary btn-block" id="checkUpdate">새 파일 확인 (업데이트)</button>
+      <div class="kv" id="updInfo"></div>
+      <button class="btn btn-danger btn-block" id="resetFile">파일 원본으로 되돌리기</button>
+    </div>
+
+    <div class="admin-section">
+      <h3>백업 / 파일 만들기</h3>
+      <button class="btn btn-blue btn-block" id="exportHtmlBtn">새 index.html 만들기</button>
+      <div class="hint">지금 내용을 그대로 담은 배포용 index.html 을 만듭니다. 이 파일을 깃허브에 올리면 모든 폰에 반영됩니다.</div>
+      <button class="btn btn-ghost btn-block" id="exportBtn">내보내기 (백업 파일 저장)</button>
+      <button class="btn btn-ghost btn-block" id="importBtn">불러오기 (백업 파일 열기)</button>
+      <input type="file" id="importFile" accept="application/json,.json" style="display:none">
+    </div>`;
+  const scroller = wideAdmin() ? body : $('#adminBody');
+  const prevScroll = resetScroll ? 0 : scroller.scrollTop;
+  body.innerHTML = html;
+  scroller.scrollTop = prevScroll;
+  renderPane2();
+  finishAdminHome(body);
+}
+
+/* 채팅 목록 — PC에서는 2번째 칸, 모바일에서는 첫 화면 아래 */
+function roomListHtml(){
+  const L = curList();
+  const me = personById(L, effMeId());
+  let html = `
+    <div class="admin-section">
+      <h3>채팅 목록
+        <span class="row-actions">
+          <button class="btn btn-blue btn-sm" id="addRoom">＋ 새 채팅</button>
+          <button class="btn btn-ghost btn-sm" id="importRoomBtn">불러오기</button>
+        </span>
+      </h3>
+      ${importOpen ? importRoomPanel() : ''}
+      <div class="drag-hint">이 순서 그대로 사이드바에 보입니다(위가 먼저). 끌거나 ▲▼로 순서를 바꾸세요.
+        📌고정한 채팅은 같은 순서로 “고정됨”에 따로 나옵니다.</div>`;
+  if(!L.rooms.length) html += `<div class="hint">채팅이 없습니다. 새 채팅을 추가하세요.</div>`;
+  html += `<div id="roomBox">`;
+  L.rooms.forEach((room, idx)=>{
+    const pinBy = room.participants.filter(p=>p.pinned).map(p=>p.name);
+    html += `
+      <div class="admin-list-item ${room.id===adminRoomId?'picked':''}" data-sort="${room.id}">
+        <div class="top">
+          <div style="min-width:0">
+            <div class="rname">${idx+1}. ${esc(room.title||'새 채팅')}</div>
+            <div class="rsub">${esc(room.participants.map(p=>p.name).join(', ') || '(볼 사람 없음)')}${pinBy.length?' · 📌'+esc(pinBy.join(', ')):''}</div>
+            <div class="rsub">메시지 ${room.messages.length}개</div>
+          </div>
+          <div class="row-actions" style="flex-wrap:nowrap">
+            <button class="btn ${room.id===adminRoomId?'btn-blue':'btn-ghost'} btn-sm" data-edit="${room.id}">${room.id===adminRoomId?'편집 중':'편집'}</button>
+          </div>
+        </div>
+        <div class="row-actions" style="margin-top:8px">
+          <button class="btn btn-ghost btn-sm" data-up="${room.id}" ${idx===0?'disabled':''}>▲</button>
+          <button class="btn btn-ghost btn-sm" data-down="${room.id}" ${idx===L.rooms.length-1?'disabled':''}>▼</button>
+          <button class="btn btn-ghost btn-sm" data-dup="${room.id}">복제</button>
+          <button class="btn btn-danger btn-sm" data-del="${room.id}">삭제</button>
+        </div>
+      </div>`;
+  });
+  html += `</div><div class="hint">지금 사이드바 기준 인물: <b>${esc(me ? me.name : '없음')}</b></div></div>`;
+  return html;
+}
+
+function renderPane2(){
+  const pane = $('#paneRoom');
+  if(!pane) return;
+  const room = (adminListPicked && adminRoomId) ? findRoom(adminRoomId) : null;
+  if(!room) adminRoomId = '';
+  const keep = pane.scrollTop;
+  if(!adminListPicked){
+    pane.innerHTML = wideAdmin() ? '<div class="pane-empty">왼쪽에서 중분류의 <b>열기</b>를 누르면<br>그 중분류의 채팅이 여기 표시됩니다.</div>' : '';
+    $('#paneMsgs').innerHTML = '';
+    $('#adminBody').classList.remove('room-open');
+    return;
+  }
+  pane.innerHTML = (wideAdmin() ? roomListHtml() : '')
+    + (room ? roomEditorHtml(room) : (wideAdmin() ? '<div class="pane-empty">위 목록에서 채팅의 <b>편집</b>을 누르세요.</div>' : ''));
+  pane.scrollTop = keep;
+  if(wideAdmin()) bindRoomListSection(pane);
+  if(room){ bindRoomEditor(room); }
+  else $('#paneMsgs').innerHTML = '';
+  $('#adminBody').classList.toggle('room-open', !!room);
+}
+
+function finishAdminHome(body){
+  $('#exportHtmlBtn').onclick = exportHtml;
+  const eht = $('#exportHtmlTop'); if(eht) eht.onclick = exportHtml;
+  $('#checkUpdate').onclick = ()=>{ toast('확인 중…'); checkForUpdate(true); };
+  $('#saveAppName').onclick = ()=>{
+    data.appName = $('#ed-appName').value.trim() || 'ChatGPT';
+    save(); applyAppIdentity(); toast('앱 이름 저장됨');
+  };
+  $('#installBtn').onclick = installApp;
+  $('#diagBtn').onclick = runDiag;
+  $('#resetFile').onclick = ()=> confirmDialog('폰에서 수정한 내용을 모두 지우고 파일 원본으로 되돌릴까요?', ()=>{
+    data = normalize(deepCopy(EMBEDDED_DATA)); listIdx = 0; baseFp = fingerprint(data); currentRoomId = null;
+    save(); renderAdminHome(); toast('파일 원본으로 되돌렸습니다');
+  });
+  bindTreeSection(body);
+
+  const sl = $('#saveLook');
+  if(sl) sl.onclick = ()=>{
+    const C = curList();
+    C.suggest = { show: $('#ed-sgShow').checked, emoji: $('#ed-sgEmoji').value.trim(), text: $('#ed-sgText').value };
+    C.placeholder = $('#ed-ph').value || 'ChatGPT에게 물어보세요';
+    C.modeA = $('#ed-modeA').value || 'Chat';
+    C.modeB = $('#ed-modeB').value || 'Work';
+    C.startDrawer = $('#ed-startDrawer').checked;
+    save(); renderGuest(); toast('저장됨');
+  };
+  $('#saveBottomPad').onclick = ()=>{ setDevicePad(Math.max(0, Number($('#ed-bottomPad').value)||0)); applyBottomPad(); renderAdminHome(); toast('이 기기의 하단 여백을 저장했습니다'); };
+  $('#clearBottomPad').onclick = ()=>{ setDevicePad(null); applyBottomPad(); renderAdminHome(); toast('파일 기본값으로 되돌렸습니다'); };
+  const p2f = $('#padToFile');
+  if(p2f) p2f.onclick = ()=>{
+    const v = Math.max(0, Number($('#ed-bottomPad').value)||0);
+    data.lists.forEach(L2=>{ L2.bottomPad = v; });
+    save(); renderAdminHome(); toast('파일 기본값으로도 저장했습니다');
+  };
+  if(!wideAdmin() && adminListPicked) bindRoomListSection(body);
+  $('#exportBtn').onclick = exportData;
+  $('#importBtn').onclick = ()=> $('#importFile').click();
+  $('#importFile').onchange = importData;
+}
+
+function bindRoomListSection(root){
+  makeSortable(root.querySelector('#roomBox'), order=>{
+    const L = curList();
+    L.rooms = order.map(v=>L.rooms.find(r=>r.id === v)).filter(Boolean)
+      .concat(L.rooms.filter(r=>order.indexOf(r.id) < 0));
+    save(); renderAdminHome(); toast('순서가 바뀌었습니다');
+  });
+  const ar = $('#addRoom'); if(ar) ar.onclick = addRoom;
+  const irb = $('#importRoomBtn'); if(irb) irb.onclick = ()=>{ importOpen = !importOpen; if(importOpen) impPath = []; renderAdminHome(); };
+  const irc = $('#importRoomClose'); if(irc) irc.onclick = ()=>{ importOpen = false; renderAdminHome(); };
+  const iup = $('#impUp'); if(iup) iup.onclick = ()=>{ impPath.pop(); renderAdminHome(); };
+  root.querySelectorAll('[data-impgo]').forEach(b=> b.onclick = ()=>{ impPath.push(b.dataset.impgo); renderAdminHome(); });
+  root.querySelectorAll('[data-imp]').forEach(b=> b.onclick = ()=>{
+    const raw = String(b.dataset.imp);
+    const cut = raw.lastIndexOf(':');
+    const srcList = listByKey(raw.slice(0, cut));
+    const src = srcList && srcList.rooms[+raw.slice(cut+1)];
+    if(!src){ toast('원본 채팅을 찾을 수 없습니다'); return; }
+    const copy = deepCopy(src);
+    copy.id = id();
+    copy.participants.forEach(p=> p.id = id());
+    copy.messages.forEach(m=> m.id = id());
+    curList().rooms.push(copy);
+    ensurePeople(curList());
+    save(); renderAdminHome();
+    toast(`“${copy.title}” 채팅을 불러왔습니다`);
+  });
+  root.querySelectorAll('[data-edit]').forEach(b=> b.onclick = ()=> editRoom(b.dataset.edit));
+  root.querySelectorAll('[data-del]').forEach(b=> b.onclick = ()=> delRoom(b.dataset.del));
+  root.querySelectorAll('[data-dup]').forEach(b=> b.onclick = ()=> dupRoom(b.dataset.dup));
+  root.querySelectorAll('[data-up]').forEach(b=> b.onclick = ()=> moveRoom(b.dataset.up,-1));
+  root.querySelectorAll('[data-down]').forEach(b=> b.onclick = ()=> moveRoom(b.dataset.down,1));
+}
+
+function addRoom(){
+  const L = curList();
+  const first = personById(L, effMeId()) || peopleOf(L)[0] || null;
+  const room = { id:id(), title:'새 채팅', participants: first ? [{id:id(), name:first.name, pinned:false}] : [], messages:[] };
+  L.rooms.unshift(room); save(); editRoom(room.id);
+}
+function dupRoom(rid){
+  const L = curList();
+  const src = findRoom(rid); if(!src) return;
+  const copy = deepCopy(src);
+  copy.id = id(); copy.title = (src.title||'새 채팅') + ' 사본';
+  copy.participants.forEach(p=> p.id = id());
+  copy.messages.forEach(m=> m.id = id());
+  L.rooms.splice(L.rooms.indexOf(src)+1, 0, copy);
+  save(); editRoom(copy.id); toast('복제되었습니다');
+}
+function delRoom(rid){
+  const room = findRoom(rid);
+  confirmDialog(`“${room?room.title:''}” 채팅을 삭제할까요?`, ()=>{
+    const L = curList();
+    L.rooms = L.rooms.filter(r=>r.id!==rid);
+    if(adminRoomId === rid) adminRoomId = '';
+    if(currentRoomId === rid) currentRoomId = null;
+    save(); renderAdminHome(); toast('삭제되었습니다');
+  });
+}
+function moveRoom(rid, dir){
+  const L = curList();
+  const i = L.rooms.findIndex(r=>r.id===rid);
+  const j = i+dir;
+  if(j<0||j>=L.rooms.length) return;
+  [L.rooms[i], L.rooms[j]] = [L.rooms[j], L.rooms[i]];
+  save(); renderAdminHome();
+}
+
+/* ----- 개별 채팅 편집 ----- */
+let adminRoomId = '';
+function wideAdmin(){ try{ return window.matchMedia('(min-width:1000px) and (pointer:fine)').matches; }catch(e){ return false; } }
+function editRoom(rid){
+  if(!findRoom(rid)) return renderAdminHome();
+  adminRoomId = rid;
+  if(wideAdmin()) renderPane2(); else renderAdminHome();
+  if(!wideAdmin()){ const ab = $('#adminBody'); ab.scrollTop = 0; }
+}
+function roomEditorHtml(room){
+  $('#adminTitle').textContent = wideAdmin() ? '관리자' : '채팅 편집';
+  const L = curList();
+  const rest = peopleOf(L).filter(p=> !inRoom(room, p.name));
+  return `
+    <button class="btn btn-ghost btn-sm" id="backToRooms" style="margin-bottom:14px">‹ 목록으로</button>
+    <div class="admin-section">
+      <h3>채팅 정보</h3>
+      <div class="field"><label>채팅 제목 (사이드바에 표시)</label><input id="rtitle" value="${esc(room.title)}"></div>
+      <div class="hint" style="margin-top:0">사이드바 순서는 <b>채팅 목록</b>에서 끌거나 ▲▼로 정합니다.</div>
+    </div>
+    <div class="admin-section">
+      <h3>이 채팅이 보이는 사람</h3>
+      <div id="partList"></div>
+      <div class="field inline" style="margin-top:6px">
+        <div><label>등장인물 넣기</label>
+          <select id="addPartSel" ${rest.length?'':'disabled'}>
+            ${rest.length ? rest.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('') : '<option>추가할 인물이 없습니다</option>'}
+          </select></div>
+        <button class="btn btn-blue" id="addPart" ${rest.length?'':'disabled'}>넣기</button>
+      </div>
+      <div class="field inline" style="margin-top:6px">
+        <div><label>새 인물 만들어 넣기</label><input id="newPart" placeholder="예: 이서준"></div>
+        <button class="btn btn-ghost" id="addPartNew">만들기</button>
+      </div>
+      <div class="hint">여기 넣은 사람의 폰(GPT 앱)에 이 채팅이 보입니다. 보통은 한 명이지만,
+        같은 계정을 쓰는 설정이면 여러 명을 넣어도 됩니다. <b>📌고정</b>은 그 사람 폰에서만 “고정됨”에 올라갑니다.</div>
+    </div>`;
+}
+function bindRoomEditor(room){
+  const rid = room.id;
+  const back = $('#backToRooms');
+  if(back) back.onclick = ()=>{ adminRoomId = ''; renderAdminHome(true); };
+  $('#rtitle').oninput = e=>{ room.title = e.target.value; save(); };
+  $('#rtitle').onchange = ()=>{ refreshRoomList(); };
+  $('#addPart').onclick = ()=>{
+    const p = personById(curList(), $('#addPartSel').value);
+    if(!p || inRoom(room, p.name)) return;
+    room.participants.push({id:id(), name:p.name, pinned:false});
+    save(); editRoom(rid);
+  };
+  $('#addPartNew').onclick = ()=>{
+    const v = $('#newPart').value.trim(); if(!v) return;
+    const L = curList();
+    let p = personByName(L, v);
+    if(!p){ p = {id:personId(v), name:v}; peopleOf(L).push(p); }
+    if(inRoom(room, p.name)){ toast('이미 들어 있습니다'); return; }
+    room.participants.push({id:id(), name:p.name, pinned:false});
+    save(); editRoom(rid);
+  };
+  const box = $('#partList');
+  if(!room.participants.length) box.innerHTML = '<div class="hint" style="margin:0 0 6px;color:#d63a2f">아무에게도 보이지 않습니다. 아래에서 사람을 넣으세요.</div>';
+  room.participants.forEach(p=>{
+    const row = document.createElement('div');
+    row.className = 'part-row';
+    const isMeP = personByName(curList(), p.name) && personByName(curList(), p.name).id === meId();
+    row.innerHTML = `
+      <span class="pn">${esc(p.name)} ${isMeP?'<span class="me-tag">이 기기의 나</span>':''}</span>
+      <label class="chk" style="font-size:12.5px"><input type="checkbox" data-a="pin" ${p.pinned?'checked':''}> 📌고정</label>
+      <button class="btn btn-danger btn-sm" data-a="del">빼기</button>`;
+    row.querySelector('[data-a="pin"]').onchange = e=>{ p.pinned = e.target.checked; save(); refreshRoomList(); };
+    row.querySelector('[data-a="del"]').onclick = ()=>{
+      room.participants = room.participants.filter(x=>x !== p);
+      save(); editRoom(rid);
+    };
+    box.appendChild(row);
+  });
+  renderRoomMessages(room);
+}
+/* 채팅 목록 칸의 제목 표시만 새로 고친다 (편집 중인 칸의 커서는 유지) */
+function refreshRoomList(){
+  if(wideAdmin()){
+    const pane = $('#paneRoom'); const keep = pane.scrollTop;
+    const ed = document.getElementById('backToRooms');
+    const tmp = document.createElement('div'); tmp.innerHTML = roomListHtml();
+    const old = pane.querySelector('.admin-section');
+    if(old){ old.replaceWith(tmp.firstElementChild); bindRoomListSection(pane); }
+    pane.scrollTop = keep;
+  }
+}
+
+/* 3번째 칸: 대화 내용 */
+function renderRoomMessages(room){
+  $('#paneMsgs').innerHTML = `
+    <div class="admin-section">
+      <h3>대화 내용</h3>
+      <div class="hint" style="margin-top:0">오른쪽 회색 말풍선 = <b>질문(사용자)</b>, 왼쪽 글 = <b>ChatGPT 답변</b>.<br>
+        답변에는 간단한 서식을 쓸 수 있습니다: <b>**굵게**</b>, <b>## 제목</b>, <b>- 목록</b>, <b>1. 번호 목록</b>, <b>&gt; 인용</b>, <b>\`\`\`</b> 코드 블록, <b>---</b> 구분선</div>
+      <div id="msgList"></div>
+      <div class="add-row">
+        <button class="btn btn-ghost" id="addAi">＋ ChatGPT 답변</button>
+        <button class="btn btn-primary" id="addUser">＋ 질문</button>
+      </div>
+    </div>`;
+  const add = role=>{
+    room.messages.push({id:id(), role:role, text:'', image:'', think:''});
+    save(); renderMsgEditors(room); refreshRoomList();
+    const last = $('#msgList').lastElementChild;
+    if(last){ last.scrollIntoView({block:'center'}); const ta = last.querySelector('textarea'); if(ta) ta.focus(); }
+  };
+  $('#addAi').onclick = ()=> add('assistant');
+  $('#addUser').onclick = ()=> add('user');
+  renderMsgEditors(room);
+}
+
+const PHOTO_W = 900, PHOTO_Q = 0.75;
+function resizeImageFit(file, maxW, cb){
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    const img = new Image();
+    img.onload = ()=>{
+      const canvas = document.createElement('canvas');
+      let w = img.width, h = img.height;
+      if(w > maxW){ h = Math.round(h*maxW/w); w = maxW; }
+      canvas.width = w; canvas.height = h;
+      const cx = canvas.getContext('2d');
+      cx.imageSmoothingQuality = 'high';
+      cx.fillStyle = '#fff'; cx.fillRect(0,0,w,h);
+      cx.drawImage(img, 0, 0, w, h);
+      cb(canvas.toDataURL('image/jpeg', PHOTO_Q));
+    };
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function renderMsgEditors(room){
+  const box = $('#msgList'); box.innerHTML = '';
+  if(!room.messages.length) box.innerHTML = `<div class="hint">메시지가 없습니다. 아래 버튼으로 추가하세요.</div>`;
+  room.messages.forEach((msg, i)=>{
+    const ai = msg.role === 'assistant';
+    const ed = document.createElement('div');
+    ed.className = 'msg-editor ' + (ai ? 'ai' : 'mine');
+    ed.innerHTML = `
+      <div class="who">${ai ? 'ChatGPT 답변' : '질문 (사용자)'}</div>
+      <div class="er1">
+        <select data-f="role">
+          <option value="user" ${!ai?'selected':''}>질문 (사용자)</option>
+          <option value="assistant" ${ai?'selected':''}>ChatGPT 답변</option>
+        </select>
+        ${ai ? `<input data-f="think" style="flex:1;min-width:0" placeholder="(선택) 위에 작은 글씨 — 예: 12초 동안 생각함" value="${esc(msg.think||'')}">` : ''}
+      </div>
+      <textarea data-f="text" placeholder="${ai ? '답변 내용' : '질문 내용'}">${esc(msg.text||'')}</textarea>
+      <div class="er4">
+        ${msg.image?`<div class="er-pv"><img src="${msg.image}"></div>`:''}
+        <button class="btn btn-ghost btn-sm" data-a="photo">${msg.image?'사진 변경':'＋ 사진'}</button>
+        ${msg.image?'<button class="btn btn-ghost btn-sm" data-a="photoDel">사진 제거</button>':''}
+        <input type="file" accept="image/*" style="display:none" data-a="file">
+        <span style="flex:1"></span>
+        <button class="btn btn-ghost btn-sm" data-a="up" ${i===0?'disabled':''}>▲</button>
+        <button class="btn btn-ghost btn-sm" data-a="down" ${i===room.messages.length-1?'disabled':''}>▼</button>
+        <button class="btn btn-danger btn-sm" data-a="del">삭제</button>
+      </div>`;
+    ed.querySelector('[data-f="role"]').onchange = e=>{ msg.role = e.target.value; save(); renderMsgEditors(room); };
+    const th = ed.querySelector('[data-f="think"]');
+    if(th) th.oninput = e=>{ msg.think = e.target.value; save(); };
+    const ta = ed.querySelector('[data-f="text"]');
+    const fit = ()=>{ ta.style.height = 'auto'; ta.style.height = Math.min(600, Math.max(ai?120:60, ta.scrollHeight + 2)) + 'px'; };
+    ta.oninput = e=>{ msg.text = e.target.value; save(); fit(); };
+    setTimeout(fit, 0);
+    const fileInput = ed.querySelector('[data-a="file"]');
+    ed.querySelector('[data-a="photo"]').onclick = ()=> fileInput.click();
+    fileInput.onchange = e=>{
+      const f = e.target.files[0]; if(!f) return;
+      resizeImageFit(f, PHOTO_W, url=>{ msg.image = url; save(); toast('사진이 첨부되었습니다'); renderMsgEditors(room); });
+      e.target.value = '';
+    };
+    const pdel = ed.querySelector('[data-a="photoDel"]');
+    if(pdel) pdel.onclick = ()=>{ msg.image=''; save(); renderMsgEditors(room); };
+    ed.querySelector('[data-a="del"]').onclick = ()=>{ room.messages.splice(i,1); save(); renderMsgEditors(room); refreshRoomList(); };
+    ed.querySelector('[data-a="up"]').onclick = ()=>{ if(i>0){ [room.messages[i-1],room.messages[i]]=[room.messages[i],room.messages[i-1]]; save(); renderMsgEditors(room);} };
+    ed.querySelector('[data-a="down"]').onclick = ()=>{ if(i<room.messages.length-1){ [room.messages[i+1],room.messages[i]]=[room.messages[i],room.messages[i+1]]; save(); renderMsgEditors(room);} };
+    box.appendChild(ed);
+  });
+}
+
+/* ----- 백업 / 새 index.html 만들기 ----- */
+function downloadFile(name, text, mime){
+  const blob = new Blob([text], {type: mime || 'text/plain;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 5000);
+}
+function newVersion(){
+  const d = new Date(), p = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
+}
+/* 서버 없이(파일을 직접 열었을 때도) 자기 자신의 소스를 만들어 낸다 */
+function selfHtml(){
+  const root = document.documentElement.cloneNode(true);
+  ['#thread','#suggest','#drList','#branchList','#paneHome','#paneRoom','#paneMsgs'].forEach(sel=>{
+    const el = root.querySelector(sel); if(el) el.innerHTML = '';
+  });
+  const off = (sel, cls)=>{ const el = root.querySelector(sel); if(el) el.classList.remove(cls); };
+  off('#adminOverlay','active'); off('#drawer','open'); off('#pickBranch','show');
+  off('#photoViewer','show'); off('#modePill','show'); off('#confirmBox','show'); off('#toast','show');
+  const ab = root.querySelector('#adminBody'); if(ab) ab.className = 'admin-body room-open';
+  const sg = root.querySelector('#suggest'); if(sg) sg.removeAttribute('style');
+  const pi = root.querySelector('#photoViewerImg'); if(pi) pi.removeAttribute('src');
+  const ts = root.querySelector('#toast'); if(ts) ts.textContent = '';
+  const ph = root.querySelector('#phone'); if(ph) ph.setAttribute('style', '--safe-b: 0px;');
+  return '<!DOCTYPE html>\n' + root.outerHTML + '\n';
+}
+function stripHostInjected(html){
+  let out = html;
+  out = out.replace(/<!--(?:(?!-->)[\s\S]){0,1000}?netlify\.new(?:(?!-->)[\s\S]){0,1000}?-->\s*/gi, '');
+  out = out.replace(/<meta\s+name="hosting-provider"[^>]*>\s*/gi, '');
+  out = out.replace(/<script\b[^>]*src="\/\.netlify\/[^>]*>\s*<\/script>\s*/gi, '');
+  return out;
+}
+function buildHtmlFrom(tpl){
+  const src = stripHostInjected(tpl);
+  const i = src.indexOf(MARK_S), j = src.indexOf(MARK_E);
+  if(i < 0 || j <= i) return null;
+  const ver = newVersion();
+  const json = JSON.stringify(data, null, 1).replace(/<\//g, '<\\/');
+  const block = MARK_S + ' 아래 두 줄이 이 파일에 들어있는 대화 내용입니다. */\n'
+    + 'const DATA_VERSION = ' + JSON.stringify(ver) + ';\n'
+    + 'const EMBEDDED_DATA = ' + json + ';\n';
+  return { html: src.slice(0,i) + block + src.slice(j), version: ver };
+}
+function finishExportHtml(built){
+  if(!built){ toast('파일을 만들 수 없습니다'); return; }
+  downloadFile('index.html', built.html, 'text/html;charset=utf-8');
+  baseFp = fingerprint(data);
+  save();
+  toast('새 index.html 저장됨 · 버전 ' + built.version);
+  if($('#adminOverlay').classList.contains('active')) renderAdminHome();
+}
+function exportHtml(){
+  if(location.protocol.indexOf('http') !== 0){
+    confirmDialog('지금 화면에 열려 있는 상태로 파일을 만듭니다.\n기능이 바뀐 파일을 새로 받았다면 먼저 새로고침(F5) 후에 만들어 주세요.',
+      ()=> finishExportHtml(buildHtmlFrom(selfHtml())), '만들기');
+    return;
+  }
+  fetch('./index.html?_ex=' + Date.now(), {cache:'no-store'})
+    .then(r=> r.ok ? r.text() : Promise.reject())
+    .then(tpl=> finishExportHtml(buildHtmlFrom(tpl)))
+    .catch(()=> finishExportHtml(buildHtmlFrom(selfHtml())));
+}
+function exportData(){
+  const payload = { app:'단서GPT', version:DATA_VERSION, exportedAt:new Date().toISOString(), data:data };
+  downloadFile('단서GPT_백업.json', JSON.stringify(payload,null,2), 'application/json');
+  toast('백업 파일을 저장했습니다');
+}
+function importData(e){
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try {
+      const parsed = JSON.parse(reader.result);
+      const body = (parsed && parsed.data) ? parsed.data : parsed;
+      if(!body || !Array.isArray(body.lists)) throw new Error('bad');
+      data = normalize(body);
+      listIdx = 0; currentRoomId = null;
+      if(!baseFp) baseFp = fingerprint(normalize(deepCopy(EMBEDDED_DATA)));
+      save();
+      toast('불러왔습니다');
+      renderAdminHome(true);
+    } catch(err){ toast('올바른 백업 파일이 아닙니다'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+/* ---------- 이벤트 연결 ---------- */
+$('#btnMenu').onclick = openDrawer;
+$('#btnNew').onclick = newChat;
+$('#drNew').onclick = newChat;
+$('#drScrim').onclick = goBack;
+/* 톱니바퀴는 관리자 상태에서만 동작. 손님 모드에서는 장식 */
+$('#btnAdmin').onclick = ()=>{ if(isAdmin) openAdmin(); };
+$('#adminClose').onclick = goBack;
+$('#adminGuest').onclick = guestMode;
+$('#photoClose').onclick = goBack;
+$('#photoViewer').onclick = e=>{ if(e.target.id === 'photoViewer') goBack(); };
+$('#segA').onclick = ()=>{ $('#segA').classList.add('on'); $('#segB').classList.remove('on'); };
+$('#segB').onclick = ()=>{ $('#segB').classList.add('on'); $('#segA').classList.remove('on'); };
+window.addEventListener('popstate', closeTop);
+
+/* 사이드바를 왼쪽으로 밀어 닫기 */
+(function(){
+  let sx = null, sy = 0;
+  const p = $('#drPanel');
+  p.addEventListener('touchstart', e=>{ sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, {passive:true});
+  p.addEventListener('touchend', e=>{
+    if(sx === null) return;
+    const t = e.changedTouches[0];
+    if(sx - t.clientX > 60 && Math.abs(t.clientY - sy) < 60 && drawerOpen()) goBack();
+    sx = null;
+  });
+  /* 메인 화면 왼쪽 끝에서 오른쪽으로 밀면 사이드바 열기 */
+  const h = $('#home');
+  let hx = null, hy = 0;
+  h.addEventListener('touchstart', e=>{ const x = e.touches[0].clientX; hx = x < 40 ? x : null; hy = e.touches[0].clientY; }, {passive:true});
+  h.addEventListener('touchend', e=>{
+    if(hx === null) return;
+    const t = e.changedTouches[0];
+    if(t.clientX - hx > 60 && Math.abs(t.clientY - hy) < 60 && !drawerOpen()) openDrawer();
+    hx = null;
+  });
+})();
+
+document.addEventListener('contextmenu', e=>{
+  const t = e.target;
+  if(t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
+  if(isAdmin) return;
+  e.preventDefault();
+});
+document.addEventListener('dragstart', e=>{ if(!isAdmin) e.preventDefault(); });
+
+/* 5초 길게 눌러 관리자 진입 — 사이드바 제목 “ChatGPT” 또는 가운데 Chat/Work */
+function bindLongPress(el){
+  let timer = null;
+  const start = ()=>{ clearTimeout(timer); timer = setTimeout(()=>{ openAdmin(); }, 5000); };
+  const cancel = ()=> clearTimeout(timer);
+  el.addEventListener('mousedown', start);
+  el.addEventListener('touchstart', start, {passive:true});
+  ['mouseup','mouseleave','touchend','touchcancel','touchmove'].forEach(ev=> el.addEventListener(ev, cancel));
+}
+bindLongPress($('#drTitle'));
+bindLongPress($('#seg'));
+
+/* ---------- 시작 ---------- */
+let bootTries = 0;
+function decideStartScreen(){
+  if(!data) return;
+  if(!window.innerWidth && bootTries < 20){ bootTries++; setTimeout(decideStartScreen, 200); return; }
+  if(wideAdmin()){
+    if(!isAdmin){ isAdmin = true; renderGuest(); openAdmin(!meId()); }
+    return;
+  }
+  if(!lockedC1() && (data.tree||[]).length){ renderBranchPicker(); return; }
+  fixListForBranch();
+  if(!meId()){ isAdmin = true; renderGuest(); openAdmin(true); return; }
+  renderGuest();
+  if(curList().startDrawer && !drawerOpen() && !startedDrawer){ startedDrawer = true; openDrawer(); }
+}
+let startedDrawer = false;
+let startDone = false;
+
+let bootErrors = [];
+function step(name, fn){
+  try{ fn(); }
+  catch(e){ bootErrors.push({ where:name, err:e }); try{ console.error('[단서GPT] ' + name + ' 실패', e); }catch(x){} }
+}
+function showBootError(){
+  const el = document.getElementById('thread');
+  if(!el) return;
+  const lines = bootErrors.map(b=>{ const e = b.err || {}; return '<b>' + esc(b.where) + '</b> — ' + esc(String(e.message || e.name || e)); });
+  el.innerHTML = '<div class="empty" style="user-select:text;-webkit-user-select:text">내용을 불러오지 못했습니다.<br><br>'
+    + '주소 끝에 <b>?reset=1</b> 을 붙여 다시 열어보세요.<br><br>'
+    + '<span style="font-size:11px">코드 버전 ' + esc(CODE_VERSION) + '<br>' + (lines.join('<br>') || '응답 없음') + '</span></div>';
+}
+
+(function boot(){
+  let first = Promise.resolve();
+  if(/[?&]reset=1/.test(location.search)){
+    try{ [STORE_KEY, LAST_KEY, VIEW_KEY, PAD_KEY, BRANCH_KEY].forEach(k=>localStorage.removeItem(k)); }catch(e){}
+    try{ first = idbClear(); }catch(e){}
+    try{ if(window.caches && caches.keys) caches.keys().then(ks=>ks.forEach(k=>{ if(isMyCache(k)) caches.delete(k); })); }catch(e){}
+    try{
+      if(navigator.serviceWorker && navigator.serviceWorker.getRegistrations){
+        navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>{ if(isMySW(r)) r.unregister(); }));
+      }
+    }catch(e){}
+  }
+  first.catch(()=>{}).then(load).then(d=>{
+    data = d;
+    step('loadView', loadView);
+    step('loadBranch', loadBranch);
+    step('selectListFromUrl', selectListFromUrl);
+    step('save', save);
+    step('syncUrl', syncUrl);
+    step('renderGuest', renderGuest);
+    try{ askPersist().then(refreshQuota).then(()=>{ try{ refreshAdminInfo(); }catch(e){} }); }catch(e){}
+    if(saveBlocked) setTimeout(()=>toast('저장된 내용을 읽지 못했습니다. 내용 보호를 위해 저장을 멈췄습니다 — 앱을 껐다 켜 주세요.'), 700);
+    step('decideStartScreen', decideStartScreen);
+    if(bootErrors.length) showBootError();
+  }).catch(err=>{ bootErrors.push({ where:'load', err:err }); showBootError(); });
+})();
+setTimeout(function(){
+  if(!data){ bootErrors.push({ where:'load', err:{message:'저장된 내용을 읽는 중 응답이 없습니다'} }); showBootError(); }
+}, 6000);
+
+/* 서비스워커: 최신 파일 우선(network-first) */
+if(!('serviceWorker' in navigator)) swState = '이 브라우저는 지원 안 함';
+else if(location.protocol.indexOf('http') !== 0) swState = '파일 직접 열기 — 사용 불가';
+else {
+  navigator.serviceWorker.addEventListener('controllerchange', ()=>{ swState = '작동 중'; refreshAdminInfo(); });
+  navigator.serviceWorker.register('./sw.js?v=' + encodeURIComponent(DATA_VERSION), {updateViaCache:'none'})
+    .then(()=>{ swState = '등록됨 (제어 대기)'; refreshAdminInfo(); return navigator.serviceWorker.ready; })
+    .then(()=>{ swState = navigator.serviceWorker.controller ? '작동 중' : '등록됨 (새로고침하면 작동)'; refreshAdminInfo(); })
+    .catch(e=>{ swState = '등록 실패: ' + ((e && e.message) ? e.message : String(e)); refreshAdminInfo(); });
+}
+
+/* 실행할 때마다 서버의 index.html 을 확인해서 새 파일이면 갈아끼운다 */
+setTimeout(function once(){
+  if(!data){ setTimeout(once, 500); return; }
+  checkForUpdate(false);
+}, 1500);
+</script>
+</body></html>
