@@ -495,6 +495,28 @@
 .msg-editor .er4>*{margin-right:8px}
 .msg-editor .er4>*{margin-bottom:8px}
 .add-row>*+*{margin-left:8px}
+.confirm-actions>*+*{margin-left:8px}</style><style id="oldBrowserGap">.g-suggest>*+*{margin-left:18px}
+.g-compose>*+*{margin-left:12px}
+.m-acts>*+*{margin-left:16px}
+.dr-it>*+*{margin-left:14px}
+.dr-chat>*+*{margin-left:14px}
+.dr-new>*+*{margin-left:10px}
+.bp-row>*+*{margin-left:10px}
+.admin-body>*+*{margin-left:14px}
+.admin-section h3>*+*{margin-left:8px}
+.field.inline>*+*{margin-left:8px}
+.chk>*+*{margin-left:8px}
+.row-actions>*{margin-right:6px}
+.row-actions>*{margin-bottom:6px}
+.crumb>*{margin-right:8px}
+.crumb>*{margin-bottom:8px}
+.admin-list-item .top>*+*{margin-left:8px}
+.part-row>*{margin-right:10px}
+.part-row>*{margin-bottom:10px}
+.msg-editor .er1>*+*{margin-left:8px}
+.msg-editor .er4>*{margin-right:8px}
+.msg-editor .er4>*{margin-bottom:8px}
+.add-row>*+*{margin-left:8px}
 .confirm-actions>*+*{margin-left:8px}</style></head>
 <body>
 <div id="phone" style="--safe-b: 0px;">
@@ -603,7 +625,7 @@
    ============================================================ */
 
 /*__CS_DATA_START__ 아래 두 줄이 이 파일에 들어있는 대화 내용입니다. */
-const DATA_VERSION = "2026-10-08-161132";
+const DATA_VERSION = "2026-11-04-180150";
 const EMBEDDED_DATA = {
  "appName": "ChatGPT",
  "tree": [
@@ -1094,7 +1116,7 @@ const EMBEDDED_DATA = {
 };
 /*__CS_DATA_END__*/
 
-const CODE_VERSION = '2026-10-07-G2 (구형 브라우저 호환)';
+const CODE_VERSION = '2026-10-08-G3 (새 파일 적용 고침)';
 
 /* 같은 주소(github.io)에 다른 단서 앱(카카오톡·문자 등)이 함께 올라가도
    서로의 저장분을 건드리지 않도록 이 앱만의 이름을 쓴다 */
@@ -1135,7 +1157,7 @@ function goBack(){
   closeTop();
 }
 
-function isMyCache(k){ return k.indexOf(CACHE_PREFIX) === 0; }
+function isMyCache(k){ return k.indexOf('cs2-gpt-') === 0 || k.indexOf(CACHE_PREFIX) === 0; }   /* 'cs2-' 는 지금 sw.js 가 쓰는 이름, CACHE_PREFIX 는 예전 이름 */
 function appDir(){ try{ return new URL('./', location.href).href; }catch(e){ return location.href; } }
 function isMySW(reg){ return String(reg && reg.scope).indexOf(appDir()) === 0; }
 
@@ -1289,7 +1311,12 @@ function readFileData(txt){
   }catch(e){ return null; }
 }
 function forceUpdate(){
-  const go = ()=> location.replace(listUrl(curList().key));
+  /* 그냥 같은 주소로 다시 열면 브라우저가 들고 있던 옛 복사본이 그대로 뜬다.
+     한 번 쓰고 버릴 꼬리표(_fresh)를 붙여 반드시 서버에서 받아오게 한다. */
+  const go = ()=>{
+    const u = listUrl(curList().key);
+    location.replace(u + (u.indexOf('?') >= 0 ? '&' : '?') + '_fresh=' + Date.now().toString(36));
+  };
   const steps = [];
   idbBox = null;
   try{ steps.push(idbClear()); }catch(e){}
@@ -1650,6 +1677,7 @@ function syncUrl(){
     const u = new URL(location.href);
     u.searchParams.set('list', curList().key);
     u.searchParams.delete('reset');
+    u.searchParams.delete('_fresh');   /* 한 번 쓰고 버리는 꼬리표는 주소에 남기지 않는다 */
     u.hash = '';
     history.replaceState(history.state, '', u.pathname + u.search);
   }catch(e){}
@@ -3199,6 +3227,7 @@ setTimeout(function once(){
   checkForUpdate(false);
 }, 1500);
 </script>
+
 
 
 
